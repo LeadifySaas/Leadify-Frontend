@@ -1,0 +1,7 @@
+@layer reset, base, tokens, recipes, utilities;
+
+@pandacss reset;
+@pandacss base;
+@pandacss tokens;
+@pandacss recipes;
+@pandacss utilities;

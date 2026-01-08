@@ -1,0 +1,64 @@
+Debes colocar únicamente los proveedores que sean transversales a toda la aplicación (Global Scope).
+
+Librerías de Terceros:
+
+QueryClientProvider (TanStack Query / React Query).
+
+ThemeProvider (NextThemes, Panda CSS o Styled Components).
+
+SessionProvider (NextAuth o Clerk).
+
+ToastProvider (Sonner, React Hot Toast).
+
+Contextos Globales Propios:
+
+AuthContext: Si manejas el estado del usuario manualmente.
+
+UIContext: Para estados globales simples como "¿el sidebar está abierto?" o un sistema de modales global.
+
+2. La Regla de Oro: Global vs. Feature
+Aquí es donde la Screaming Architecture se diferencia de una estructura genérica:
+
+Si el provider es global: Va en src/providers/.
+
+Si el provider es específico de un módulo: Va en src/features/{modulo}/providers/.
+
+Ejemplo: Un VehicleEditorProvider que solo sirve para coordinar el estado complejo de un formulario de 5 pasos para crear vehículos debe vivir en la feature, no en la carpeta global.
+
+3. El patrón "AppProvider" (Composición)
+Para evitar que tu archivo layout.tsx o _app.tsx se convierta en un "infierno de wrappers" (anidación infinita), se suele crear un Composite Provider.
+
+TypeScript
+
+// src/providers/index.tsx
+import { QueryProvider } from './QueryProvider';
+import { AuthProvider } from './AuthProvider';
+import { ThemeProvider } from './ThemeProvider';
+
+export function AppProviders({ children }: { children: React.ReactNode }) {
+  return (
+    <QueryProvider>
+      <ThemeProvider>
+        <AuthProvider>
+          {children}
+        </AuthProvider>
+      </ThemeProvider>
+    </QueryProvider>
+  );
+}
+Relación entre lib/, features/ y providers/
+Es fundamental entender cómo interactúan estas tres carpetas para que tu arquitectura sea eficiente:
+
+lib/: Creas la instancia técnica (ej. const queryClient = new QueryClient()).
+
+providers/: Tomas esa instancia y la inyectas en React (ej. <QueryClientProvider client={queryClient}>).
+
+features/: Consumes la funcionalidad a través de hooks (ej. useQuery(...)).
+
+Resumen de carpetas para tu decisión final:
+
+Carpeta,Responsabilidad
+lib/,"Configuración técnica (El ""teléfono"")."
+providers/,"Disponibilidad global (La ""señal"" en toda la casa)."
+utils/,"Funciones puras (Las ""herramientas"" como un martillo)."
+features/,"Lógica de negocio (El ""propósito"" de la casa)."
