@@ -11,8 +11,17 @@
     "prepare": "panda codegen"
   },
   "dependencies": {
+    "@tanstack/react-router": "^1.161.3",
+    "axios": "^1.13.5",
+    "lucide": "^0.575.0",
     "react": "^19.2.0",
-    "react-dom": "^19.2.0"
+    "react-aria-components": "^1.15.1",
+    "react-dom": "^19.2.0",
+    "react-router": "^7.13.0",
+    "react-toastify": "^11.0.5",
+    "recharts": "^3.7.0",
+    "zod": "^4.3.6",
+    "zustand": "^5.0.11"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.1",
