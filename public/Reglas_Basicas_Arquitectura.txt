@@ -1,0 +1,211 @@
+1️⃣ Diferencia real
+
+--------------------- Afecta toda la aplicación → app ---------------------
+
+Son cosas que configuran o gobiernan el funcionamiento global de la app.
+
+Si desaparecen, la app deja de funcionar o cambia su comportamiento global.
+
+Ejemplos:
+
+app
+ ├ router
+ ├ providers
+ ├ auth
+ ├ layouts
+ ├ config
+ └ store
+
+Ejemplos concretos y por qué van en app:
+
+
+router            --->    controla navegación global
+auth	          --->    controla acceso
+query provider    --->    cache global
+theme provider	  --->    tema global
+layout principal  ---> 	  estructura de toda la app
+
+No son reutilizables.
+Son parte del sistema.
+
+
+
+
+
+--------------------- Reutilizable en muchos lados → shared ---------------------
+
+Son herramientas o piezas reutilizables, pero no gobiernan la app.
+
+Si desaparecen, la app sigue funcionando, solo perdés helpers o UI.
+
+Ejemplos:
+
+shared
+ ├ components
+ ├ ui
+ ├ hooks
+ ├ lib
+ └ types
+
+Ejemplos y por qué son shared:
+
+Button	          ---> 	  componente reutilizable
+Modal	          ---> 	  UI genérica
+useDebounce	      ---> 	  hook reutilizable
+formatCurrency	  ---> 	  util
+Table	          ---> 	  componente genérico
+
+Son building blocks.
+
+2️⃣ Ejemplo claro para no confundirte
+Auth
+app/auth
+
+Porque controla:
+
+login
+permisos
+token
+sesión
+
+Afecta toda la app.
+
+Button
+shared/ui/button.tsx
+
+Se usa en muchos lados, pero no controla nada global.
+
+3️⃣ Regla mental que nunca falla
+
+Preguntate:
+
+¿Configura el sistema?
+router
+providers
+auth
+layouts
+
+→ app
+
+¿Es una herramienta reutilizable?
+button
+modal
+table
+hooks
+utils
+
+→ shared
+
+4️⃣ Por qué puse ui en shared
+
+Esto es una convención bastante usada en frontend moderno.
+
+shared/ui
+
+Se usa para componentes puramente visuales.
+
+Ejemplo:
+
+shared/ui
+ ├ button.tsx
+ ├ input.tsx
+ ├ card.tsx
+ ├ modal.tsx
+ └ table.tsx
+
+Estos componentes:
+
+no tienen lógica de negocio
+
+no saben nada de features
+
+solo renderizan UI
+
+5️⃣ Entonces ¿por qué no usar solo components?
+
+Porque components suele mezclarse con lógica.
+
+Ejemplo:
+
+components
+ ├ CustomerCard
+ ├ DealPipeline
+ ├ InvoiceTable
+
+Esos ya pertenecen a features, no son UI genérica.
+
+Por eso se separa:
+
+shared
+ ├ ui        → componentes genéricos
+ └ components → componentes reutilizables pero con lógica
+6️⃣ Ejemplo real
+UI genérica
+shared/ui/button.tsx
+shared/ui/input.tsx
+shared/ui/modal.tsx
+Componentes reutilizables pero más complejos
+shared/components
+ ├ sidebar
+ ├ navbar
+ └ data-table
+7️⃣ ¿Y los context?
+
+Depende.
+
+Context global
+app/providers
+
+Ejemplo:
+
+AuthProvider
+QueryProvider
+ThemeProvider
+Context de feature
+features/clientes/context
+
+Solo afecta a ese módulo.
+
+8️⃣ Estructura final clara
+src
+│
+├ app
+│  ├ router
+│  ├ providers
+│  ├ auth
+│  ├ layouts
+│  └ config
+│
+├ routes
+│
+├ features
+│  ├ clientes
+│  ├ facturas
+│  ├ ventas
+│  └ remitos
+│
+├ shared
+│  ├ ui
+│  ├ components
+│  ├ hooks
+│  ├ lib
+│  └ types
+9️⃣ La confusión más común
+
+Muchos devs hacen esto:
+
+shared
+ ├ services
+ ├ api
+ ├ hooks
+ ├ components
+
+Y termina siendo un basurero gigante.
+
+La solución es:
+
+api en features
+
+dominio en features
+
+infraestructura en app
