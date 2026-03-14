@@ -1,18 +1,23 @@
-import { css } from '../styled-system/css';
-function App() {
+import { css } from '@/styled-system/css';
+import type { ReactNode } from 'react';
+
+function App({ children }: { children: ReactNode }) {
   return (
-    <h1
+    <div
       className={css({
-        bgColor: 'red.300',
+        bgColor: '#333',
         width: '100%',
+        color: 'white',
         height: '100vh',
         display: 'grid',
         placeContent: 'center',
-        fontSize: '32px'
+        fontSize: '56px',
+        userSelect: 'none'
       })}
     >
-      Welcome to Leadify, negros pobres
-    </h1>
+      {children}
+      El pobre es pobre porque quiere
+    </div>
   );
 }
 

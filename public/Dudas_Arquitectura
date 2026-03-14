@@ -1,0 +1,221 @@
+1️⃣ El problema típico
+
+Al principio todo parece limpio:
+
+features
+ ├ clientes
+ ├ facturas
+ ├ remitos
+ └ ventas
+
+Pero después de meses termina así:
+
+clientes
+ ├ api
+ ├ hooks
+ ├ components
+ ├ modals
+ ├ tables
+ ├ filters
+ ├ forms
+ ├ validators
+ ├ types
+ ├ utils
+ ├ services
+ ├ context
+ ├ state
+ ├ pages
+ ├ dialogs
+ ├ sections
+ └ etc
+
+Se vuelve imposible de navegar.
+
+
+
+
+
+
+
+
+
+
+2️⃣ Cómo lo resuelven dashboards grandes
+
+Dividen cada feature en sub-features.
+
+Ejemplo clientes.
+
+features
+ └ clientes
+     ├ list
+     ├ create
+     ├ edit
+     ├ detail
+     └ shared
+
+
+
+
+
+3️⃣ Estructura real de una feature grande
+features
+ └ clientes
+     │
+     ├ list
+     │  ├ api
+     │  ├ components
+     │  ├ hooks
+     │  └ clientes-list-page.tsx
+     │
+     ├ create
+     │  ├ components
+     │  ├ hooks
+     │  └ create-cliente-page.tsx
+     │
+     ├ detail
+     │  ├ components
+     │  ├ hooks
+     │  └ cliente-detail-page.tsx
+     │
+     └ shared
+        ├ api
+        ├ types
+        └ components
+
+Esto evita features gigantes.
+
+
+
+
+
+4️⃣ Cómo conectan las rutas
+
+El router sigue siendo simple.
+
+routes
+ └ dashboard
+     └ clientes
+         ├ index.tsx
+         ├ nuevo.tsx
+         └ $clienteId.tsx
+index.tsx
+import { ClientesListPage } from '@/features/clientes/list/clientes-list-page'
+
+export const Route = createFileRoute('/dashboard/clientes')({
+  component: ClientesListPage
+})
+nuevo.tsx
+import { CreateClientePage } from '@/features/clientes/create/create-cliente-page'
+
+export const Route = createFileRoute('/dashboard/clientes/nuevo')({
+  component: CreateClientePage
+})
+$clienteId.tsx
+import { ClienteDetailPage } from '@/features/clientes/detail/cliente-detail-page'
+
+export const Route = createFileRoute('/dashboard/clientes/$clienteId')({
+  component: ClienteDetailPage
+})
+
+
+
+
+
+5️⃣ Esto escala muchísimo mejor
+
+Cuando el CRM crece:
+
+features
+ ├ clientes
+ ├ facturas
+ ├ remitos
+ ├ ventas
+ ├ proveedores
+ ├ productos
+ ├ inventario
+ ├ reportes
+ ├ usuarios
+ ├ roles
+ └ configuracion
+
+Cada uno puede tener sub-features internas.
+
+
+
+6️⃣ Ejemplo real de facturas
+features
+ └ facturas
+     ├ list
+     ├ create
+     ├ detail
+     ├ pdf
+     └ shared
+
+
+
+
+7️⃣ Otra optimización usada en SaaS grandes
+
+Separar UI del dominio dentro del feature.
+
+clientes
+ ├ api
+ ├ domain
+ ├ components
+ ├ pages
+ └ types
+
+Esto se usa mucho cuando la lógica crece mucho.
+
+
+
+
+8️⃣ Estructura final recomendada para tu CRM
+src
+│
+├ app
+│  ├ router
+│  ├ layouts
+│  ├ providers
+│  └ auth
+│
+├ routes
+│
+├ features
+│  ├ clientes
+│  ├ facturas
+│  ├ remitos
+│  ├ ventas
+│  └ reportes
+│
+├ shared
+│  ├ ui
+│  ├ components
+│  ├ hooks
+│  └ lib
+
+
+9️⃣ Regla que usan los equipos grandes
+
+Cuando una feature supera ~7 carpetas, se divide.
+
+Ejemplo:
+
+clientes
+ ├ list
+ ├ create
+ ├ edit
+ ├ detail
+ └ shared
+
+
+ 
+🔟 Resultado
+
+Con esta arquitectura podés escalar a:
+
+100+ pantallas
+50+ módulos
+
+sin que el proyecto se vuelva inmanejable.
