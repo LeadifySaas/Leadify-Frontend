@@ -10,7 +10,7 @@ export const remitoItemSchema = z.object({
 
 export const remitoSchema = z.object({
     numeroRemito: z.string().min(1, "El número es obligatorio"),
-    fecha: z.string(),
+    fechaEmision: z.string(),
     clienteId: z.number().min(1, "Seleccione un cliente"),
     sedeId: z.number().min(1, "Seleccione una sede"),
     observaciones: z.string().optional(),
