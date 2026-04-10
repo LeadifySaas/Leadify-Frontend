@@ -1,8 +1,25 @@
-import { create } from 'zustand'
+import { create } from 'zustand';
+import { persist } from 'zustand/middleware';
 
-export const useBear = create((set) => ({
-    bears: 0,
-    increasePopulation: () => set((state: any) => ({ bears: state.bears + 1 })),
-    removeAllBears: () => set({ bears: 0 }),
-    updateBears: (newBears: number) => set({ bears: newBears }),
-}))
+interface AuthState {
+    token: string | null;
+    user: any | null;
+    setToken: (token: string) => void;
+    logout: () => void;
+}
+
+export const useAuthStore = create<AuthState>()(
+    persist(
+        (set) => ({
+            token: null,
+            user: null,
+            setToken: (token) => {
+                set({ token });
+            },
+            logout: () => set({ token: null, user: null }),
+        }),
+        {
+            name: 'auth-storage',
+        }
+    )
+);

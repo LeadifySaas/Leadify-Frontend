@@ -1,14 +1,14 @@
-import { createRootRoute, Outlet } from '@tanstack/react-router';
-import App from '@/App';
+import { createRootRouteWithContext, Outlet } from '@tanstack/react-router';
+import { useAuthStore } from '@/shared/store/auth.store';
 
-export const Route = createRootRoute({
-  component: RootLayout
-});
-
-function RootLayout() {
-  return (
-    <App>
-      <Outlet />
-    </App>
-  );
+interface MyRouterContext {
+  auth: ReturnType<typeof useAuthStore.getState>;
 }
+
+export const Route = createRootRouteWithContext<MyRouterContext>()({
+  component: () => (
+    <>
+      <Outlet />
+    </>
+  ),
+});
