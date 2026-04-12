@@ -1,6 +1,6 @@
 import { css } from '../../../../styled-system/css';
 import { stack, grid, hstack, center } from '../../../../styled-system/patterns';
-import { Save, ArrowLeft, User, ShieldCheck, Info } from 'lucide-react';
+import { Save, ArrowLeft, User, ShieldCheck, Info, Phone, Briefcase, FileText } from 'lucide-react';
 import { useNavigate } from '@tanstack/react-router';
 import { useForm, type SubmitHandler } from "react-hook-form";
 import { useEffect } from "react";
@@ -22,10 +22,12 @@ export function UsuarioForm({ mode, initialData }: Props) {
         defaultValues: initialData || {
             rolId: 2,
             activo: true,
+            areaSector: "", 
+            telefono: "",
+            observaciones: ""
         },
     });
 
-    // Sincroniza el formulario cuando initialData cambia
     useEffect(() => {
         if (initialData) {
             reset(initialData);
@@ -33,6 +35,8 @@ export function UsuarioForm({ mode, initialData }: Props) {
     }, [initialData, reset]);
 
     const onSubmit: SubmitHandler<UsuarioFormValues> = async (data) => {
+
+
         try {
             if (mode === 'create') {
                 await createUsuario(data);
@@ -49,13 +53,14 @@ export function UsuarioForm({ mode, initialData }: Props) {
     const currentNombre = watch("nombre");
     const currentApellido = watch("apellido");
     const currentEmail = watch("email");
+    const currentArea = watch("areaSector");
 
     const isLoading = isCreating || isUpdating;
 
     return (
         <form onSubmit={handleSubmit(onSubmit)} className={stack({ gap: '6', p: '2' })}>
 
-            {/* Header del Formulario */}
+            {/* Header */}
             <div className={hstack({ justifyContent: 'space-between' })}>
                 <div className={hstack({ gap: '4' })}>
                     <button
@@ -86,33 +91,45 @@ export function UsuarioForm({ mode, initialData }: Props) {
 
             <div className={grid({ columns: { base: 1, lg: 3 }, gap: '6' })}>
 
-                {/* Columna Principal: Datos Personales y Seguridad */}
+                {/* Columna Principal */}
                 <div className={css({ lg: { gridColumn: 'span 2' }, spaceY: '6' })}>
 
-                    {/* Card: Datos Personales */}
+                    {/* Card: Información Personal y Contacto */}
                     <div className={cardStyle}>
                         <div className={hstack({ mb: '4', gap: '2' })}>
                             <User size={18} className={css({ color: 'blue.600' })} />
-                            <h3 className={sectionTitleStyle}>Información Personal</h3>
+                            <h3 className={sectionTitleStyle}>Información Personal y Contacto</h3>
                         </div>
                         <div className={grid({ columns: 2, gap: '4' })}>
                             <div className={stack({ gap: '1.5' })}>
                                 <label className={labelStyle}>Nombre</label>
-                                <input
-                                    {...register("nombre")}
-                                    className={inputStyle}
-                                    placeholder="Ej: Juan"
-                                />
+                                <input {...register("nombre")} className={inputStyle} placeholder="Ej: Juan" />
                                 {errors.nombre && <span className={errorStyle}>{errors.nombre.message}</span>}
                             </div>
                             <div className={stack({ gap: '1.5' })}>
                                 <label className={labelStyle}>Apellido</label>
-                                <input
-                                    {...register("apellido")}
-                                    className={inputStyle}
-                                    placeholder="Ej: Pérez"
-                                />
+                                <input {...register("apellido")} className={inputStyle} placeholder="Ej: Pérez" />
                                 {errors.apellido && <span className={errorStyle}>{errors.apellido.message}</span>}
+                            </div>
+                            <div className={stack({ gap: '1.5' })}>
+                                <label className={labelStyle}>
+                                    <div className={hstack({ gap: '1' })}><Phone size={12} /> Teléfono</div>
+                                </label>
+                                <input {...register("telefono")} className={inputStyle} placeholder="Ej: 11 2233 4455" />
+                                {errors.telefono && <span className={errorStyle}>{errors.telefono.message}</span>}
+                            </div>
+                            <div className={stack({ gap: '1.5' })}>
+                                <label className={labelStyle}>
+                                    <div className={hstack({ gap: '1' })}><Briefcase size={12} /> Área o Sector</div>
+                                </label>
+                                <select {...register("areaSector")} className={inputStyle}>
+                                    <option value="">Seleccione un área...</option>
+                                    <option value="Fábrica">Fábrica</option>
+                                    <option value="Ventas">Ventas</option>
+                                    <option value="Administración">Administración</option>
+                                    <option value="Logística">Logística</option>
+                                </select>
+                                {errors.areaSector && <span className={errorStyle}>{errors.areaSector.message}</span>}
                             </div>
                         </div>
                     </div>
@@ -126,23 +143,19 @@ export function UsuarioForm({ mode, initialData }: Props) {
                         <div className={grid({ columns: 2, gap: '4' })}>
                             <div className={stack({ gap: '1.5' })}>
                                 <label className={labelStyle}>Email (Usuario)</label>
-                                <input
-                                    type="email"
-                                    {...register("email")}
-                                    className={inputStyle}
-                                    placeholder="usuario@leadify.com"
+                                <input 
+                                    type="email" 
+                                    {...register("email")} 
+                                    className={inputStyle} 
+                                    disabled={mode === 'edit'} // Email suele ser inmutable
+                                    placeholder="usuario@leadify.com" 
                                 />
                                 {errors.email && <span className={errorStyle}>{errors.email.message}</span>}
                             </div>
                             
                             <div className={stack({ gap: '1.5' })}>
                                 <label className={labelStyle}>Contraseña {mode === 'edit' && "(opcional)"}</label>
-                                <input
-                                    type="password"
-                                    {...register("password")}
-                                    className={inputStyle}
-                                    placeholder="••••••••"
-                                />
+                                <input type="password" {...register("password")} className={inputStyle} placeholder="••••••••" />
                                 {errors.password && <span className={errorStyle}>{errors.password.message}</span>}
                             </div>
 
@@ -153,7 +166,6 @@ export function UsuarioForm({ mode, initialData }: Props) {
                                     <option value="2">Vendedor</option>
                                     <option value="3">Logística</option>
                                 </select>
-                                {errors.rolId && <span className={errorStyle}>{errors.rolId.message}</span>}
                             </div>
 
                             <div className={stack({ gap: '1.5', justifyContent: 'center' })}>
@@ -191,39 +203,43 @@ export function UsuarioForm({ mode, initialData }: Props) {
                     </div>
                 </div>
 
-                {/* Columna Lateral: Resumen */}
+                {/* Columna Lateral */}
                 <div className={stack({ gap: '6' })}>
-                    <div className={css({
-                        p: '6', bgColor: 'blue.50', borderRadius: '2xl', border: '1px solid', borderColor: 'blue.100'
-                    })}>
-                        <h4 className={css({ color: 'blue.800', fontWeight: 'bold', mb: '2', fontSize: 'sm' })}>Vista Previa del Perfil</h4>
+                    <div className={css({ p: '6', bgColor: 'blue.50', borderRadius: '2xl', border: '1px solid', borderColor: 'blue.100' })}>
+                        <h4 className={css({ color: 'blue.800', fontWeight: 'bold', mb: '2', fontSize: 'sm' })}>Vista Previa</h4>
                         <div className={stack({ gap: '1' })}>
                             <p className={css({ color: 'blue.900', fontSize: 'md', fontWeight: '700' })}>
-                                {currentNombre || currentApellido ? `${currentNombre} ${currentApellido}`.trim() : 'Nombre del Usuario'}
+                                {currentNombre || currentApellido ? `${currentNombre} ${currentApellido}`.trim() : 'Nombre Usuario'}
                             </p>
                             <p className={css({ color: 'blue.600', fontSize: 'xs' })}>
                                 {currentEmail || 'email@sistema.com'}
                             </p>
+                            {currentArea && (
+                                <span className={css({ mt: '2', display: 'inline-block', fontSize: '10px', px: '2', py: '0.5', bgColor: 'blue.200/50', color: 'blue.700', borderRadius: 'md', w: 'fit-content', fontWeight: 'bold' })}>
+                                    {currentArea}
+                                </span>
+                            )}
                         </div>
-
                         <div className={css({ my: '4', borderTop: '1px dashed', borderColor: 'blue.200' })} />
-
                         <div className={hstack({ gap: '2', color: 'blue.700' })}>
                             <Info size={14} />
-                            <span className={css({ fontSize: 'xs', fontWeight: '600' })}>Leadify ID System</span>
+                            <span className={css({ fontSize: 'xs', fontWeight: '600' })}>ID System</span>
                         </div>
                     </div>
 
                     <div className={cardStyle}>
-                         <label className={labelStyle}>Notas Administrativas</label>
+                         <label className={labelStyle}>
+                            <div className={hstack({ gap: '1' })}><FileText size={12} /> Observaciones Internas</div>
+                         </label>
                          <textarea 
+                            {...register("observaciones")}
                             className={css({
                                 p: '2.5', bgColor: 'gray.50', border: '1px solid', borderColor: 'gray.200',
                                 borderRadius: 'xl', fontSize: 'sm', outline: 'none', mt: '2',
-                                w: 'full', minH: '100px', resize: 'none',
+                                w: 'full', minH: '120px', resize: 'none',
                                 _focus: { borderColor: 'blue.400', bgColor: 'white' }
                             })}
-                            placeholder="Notas internas sobre el usuario..."
+                            placeholder="Notas administrativas sobre el perfil..."
                          />
                     </div>
                 </div>
@@ -232,7 +248,7 @@ export function UsuarioForm({ mode, initialData }: Props) {
     );
 }
 
-// --- Estilos ---
+// Estilos se mantienen igual que en tu base
 const cardStyle = css({ p: '6', bgColor: 'white', borderRadius: '2xl', border: '1px solid', borderColor: 'gray.100', boxShadow: 'sm' });
 const sectionTitleStyle = css({ fontWeight: '800', color: '#1A365D', fontSize: 'md' });
 const labelStyle = css({ fontSize: 'xs', fontWeight: 'bold', color: 'gray.500', textTransform: 'uppercase', letterSpacing: 'wider' });

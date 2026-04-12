@@ -18,11 +18,15 @@ export const UsuarioSchema = z.object({
     // Contraseña: mínima de 6 caracteres. 
     // .optional() permite que en la edición no tire error si viene vacío
     password: z.string()
-        .min(6, "La contraseña debe tener al menos 6 caracteres")
-        .optional()
-        .or(z.literal("")), 
+    .min(8, "La contraseña debe tener al menos 8 caracteres")
+    .regex(/[A-Z]/, "Debe contener al menos una letra mayúscula")
+    .regex(/[0-9]/, "Debe contener al menos un número"),
 
     activo: z.boolean().default(true),
+    telefono: z.string().optional().nullable(),
+    areaSector: z.string().optional().nullable(),
+    observaciones: z.string().optional().nullable(),
+    fotoPerfil: z.string().optional().nullable(),
 });
 
 export type UsuarioFormValues = z.infer<typeof UsuarioSchema>;

@@ -2,25 +2,25 @@ import { useState } from "react";
 import { css } from '../../../../styled-system/css';
 import { stack, hstack, center } from '../../../../styled-system/patterns';
 import { 
-    Search, Plus, Edit, Trash2, Users, 
-    ChevronLeft, ChevronRight 
+    Search, Plus, Edit, Trash2, Contact2, 
+    ChevronLeft, ChevronRight, Mail, Phone, Building2
 } from "lucide-react";
 import { useNavigate } from "@tanstack/react-router";
-import { useClientes } from "../hooks/useClientes";
+import { useContactos } from "../hooks/useContacto";
 
-export default function ClientePage() {
+export default function ContactoPage() {
     const navigate = useNavigate();
     const [search, setSearch] = useState("");
     const [page, setPage] = useState(1);
     const size = 25;
 
-    const { clientesQuery, deleteCliente } = useClientes(page, size, search);
-    const { data, isLoading } = clientesQuery;
+    const { contactosQuery, deleteContacto } = useContactos(page, size, search);
+    const { data, isLoading } = contactosQuery;
 
     const handleDelete = async (id: number) => {
-        if (window.confirm("¿Estás seguro de que deseas eliminar este cliente?")) {
+        if (window.confirm("¿Estás seguro de que deseas eliminar este contacto?")) {
             try {
-                await deleteCliente(id);
+                await deleteContacto(id);
             } catch (error) {
                 console.error("Error al eliminar:", error);
             }
@@ -34,23 +34,23 @@ export default function ClientePage() {
             <div className={hstack({ justifyContent: 'space-between' })}>
                 <div className={hstack({ gap: '3' })}>
                     <div className={center({ p: '2.5', bgColor: 'blue.50', color: 'blue.600', borderRadius: 'xl' })}>
-                        <Users size={24} />
+                        <Contact2 size={24} />
                     </div>
                     <div>
-                        <h1 className={css({ fontSize: '2xl', fontWeight: '800', color: '#1A365D' })}>Clientes</h1>
-                        <p className={css({ fontSize: 'sm', color: 'gray.500' })}>Gestión integral de clientes y estados de cuenta</p>
+                        <h1 className={css({ fontSize: '2xl', fontWeight: '800', color: '#1A365D' })}>Contactos</h1>
+                        <p className={css({ fontSize: 'sm', color: 'gray.500' })}>Agenda de personas vinculadas a empresas y clientes</p>
                     </div>
                 </div>
 
                 <button
-                    onClick={() => navigate({ to: '/administracion/clientes/nuevo' })}
+                    onClick={() => navigate({ to: '/administracion/contactos/nuevo' })}
                     className={hstack({
                         px: '5', py: '2.5', bgColor: 'blue.600', color: 'white',
                         borderRadius: 'xl', fontWeight: 'bold', cursor: 'pointer',
                         _hover: { bgColor: 'blue.700' }, transition: 'all 0.2s'
                     })}
                 >
-                    <Plus size={18} /> Nuevo Cliente
+                    <Plus size={18} /> Nuevo Contacto
                 </button>
             </div>
 
@@ -59,7 +59,7 @@ export default function ClientePage() {
                 <div className={css({ position: 'relative', flex: 1 })}>
                     <Search className={css({ position: 'absolute', left: '3', top: '50%', transform: 'translateY(-50%)', color: 'gray.400' })} size={18} />
                     <input
-                        placeholder="Buscar por nombre o CUIL..."
+                        placeholder="Buscar por nombre, empresa o cargo..."
                         className={inputStyle}
                         value={search}
                         onChange={(e) => setSearch(e.target.value)}
@@ -67,28 +67,26 @@ export default function ClientePage() {
                 </div>
             </div>
 
-            {/* Tabla con Scroll Horizontal y Columnas Separadas */}
+            {/* Tabla */}
             <div className={cardStyle}>
                 <div className={css({ overflowX: 'auto' })}>
-                    <table className={css({ w: 'full', borderCollapse: 'collapse', minW: '1200px' })}>
+                    <table className={css({ w: 'full', borderCollapse: 'collapse', minW: '1000px' })}>
                         <thead>
                             <tr className={css({ borderBottom: '1px solid', borderColor: 'gray.100', textAlign: 'left' })}>
-                                <th className={css(thStyle)}>Cliente</th>
-                                <th className={css(thStyle)}>CUIL</th>
+                                <th className={css(thStyle)}>Nombre y Apellido</th>
+                                <th className={css(thStyle)}>Cargo / Puesto</th>
+                                <th className={css(thStyle)}>Vinculación</th>
                                 <th className={css(thStyle)}>Email</th>
                                 <th className={css(thStyle)}>Teléfono</th>
-                                <th className={css(thStyle)}>Condición IVA</th>
-                                <th className={css(thStyle)}>Límite Crédito</th>
-                                <th className={css(thStyle)}>Localidad</th>
                                 <th className={css(thStyle)}>Estado</th>
                                 <th className={css({ ...thStyle, textAlign: 'right' })}>Acciones</th>
                             </tr>
                         </thead>
                         <tbody>
                             {isLoading ? (
-                                <tr><td colSpan={9} className={css(tdStyle)}>Cargando registros...</td></tr>
-                            ) : data?.items?.map((cliente: any) => (
-                                <tr key={cliente.id} className={css({
+                                <tr><td colSpan={7} className={css(tdStyle)}>Cargando contactos...</td></tr>
+                            ) : data?.items?.map((contacto: any) => (
+                                <tr key={contacto.id} className={css({
                                     borderBottom: '1px solid',
                                     borderColor: 'gray.50',
                                     _hover: { bgColor: 'gray.50/50' },
@@ -96,57 +94,54 @@ export default function ClientePage() {
                                 })}>
                                     <td className={css(tdStyle)}>
                                         <span className={css({ fontWeight: '700', color: 'blue.700' })}>
-                                            {cliente.apellido && cliente.nombre ? `${cliente.apellido}, ${cliente.nombre}` : 'Sin nombre'}
+                                            {contacto.apellido}, {contacto.nombre}
                                         </span>
                                     </td>
                                     <td className={css(tdStyle)}>
-                                        <code className={css({ fontSize: 'xs', bgColor: 'gray.100', px: '2', py: '1', borderRadius: 'md' })}>
-                                            {cliente.cuil || '-'}
-                                        </code>
-                                    </td>
-                                    <td className={css(tdStyle)}>{cliente.email}</td>
-                                    <td className={css(tdStyle)}>{cliente.telefono || '-'}</td>
-                                    <td className={css(tdStyle)}>
-                                        <span className={css({ fontSize: 'xs', color: 'gray.600' })}>
-                                            {cliente.condicionIVA}
+                                        <span className={css({ fontSize: 'xs', color: 'gray.500', fontWeight: '500' })}>
+                                            {contacto.puesto || 'No especificado'}
                                         </span>
                                     </td>
                                     <td className={css(tdStyle)}>
-                                        <span className={css({ fontWeight: '600', color: 'green.600' })}>
-                                            ${cliente.limiteCredito?.toLocaleString('es-AR')}
-                                        </span>
+                                        <div className={hstack({ gap: '1.5' })}>
+                                            <Building2 size={14} className={css({ color: 'gray.400' })} />
+                                            <span className={css({ fontSize: 'xs', fontWeight: '600' })}>
+                                                {/* Aquí asumo que el DTO trae el nombre de la empresa vinculada */}
+                                                {contacto.empresaNombre || contacto.clienteNombre || 'Independiente'}
+                                            </span>
+                                        </div>
                                     </td>
                                     <td className={css(tdStyle)}>
-                                        <span className={css({ fontSize: 'xs' })}>
-                                            {cliente.localidad || '-'}{cliente.provincia ? `, ${cliente.provincia}` : ''}
-                                        </span>
+                                        <div className={hstack({ gap: '2' })}>
+                                            <Mail size={14} className={css({ color: 'blue.400' })} />
+                                            {contacto.email || '-'}
+                                        </div>
                                     </td>
                                     <td className={css(tdStyle)}>
-                                        <span
-                                            className={css({
-                                                padding: '4px 8px',
-                                                borderRadius: '12px',
-                                                color: '#fff',
-                                                fontSize: '11px',
-                                                fontWeight: 'bold',
-                                                backgroundColor: cliente.activo ? '#28a745' : '#dc3545'
-                                            })}
-                                        >
-                                            {cliente.activo ? 'Activo' : 'Inactivo'}
+                                        <div className={hstack({ gap: '2' })}>
+                                            <Phone size={14} className={css({ color: 'green.400' })} />
+                                            {contacto.telefono || '-'}
+                                        </div>
+                                    </td>
+                                    <td className={css(tdStyle)}>
+                                        <span className={css({
+                                            px: '2', py: '1', borderRadius: 'lg', fontSize: '10px', fontWeight: 'bold',
+                                            color: 'white', bgColor: contacto.activo ? 'green.500' : 'red.400'
+                                        })}>
+                                            {contacto.activo ? 'ACTIVO' : 'INACTIVO'}
                                         </span>
                                     </td>
                                     <td className={`${tdStyle} ${css({ textAlign: 'right' })}`}>
                                         <div className={hstack({ gap: '1', justifyContent: 'flex-end' })}>
                                             <button className={actionBtnStyle} title="Editar"
                                                 onClick={() => navigate({
-                                                    to: '/administracion/clientes/$id',
-                                                    params: { id: cliente.id.toString() }
+                                                    to: '/administracion/contactos/$id',
+                                                    params: { id: contacto.id.toString() }
                                                 })}>
                                                 <Edit size={16} />
                                             </button>
                                             <button className={`${actionBtnStyle} ${css({ color: 'red.400', _hover: { color: 'red.600', bgColor: 'red.50' } })}`} 
-                                                title="Dar de baja"
-                                                onClick={() => handleDelete(cliente.id)}>
+                                                onClick={() => handleDelete(contacto.id)}>
                                                 <Trash2 size={16} />
                                             </button>
                                         </div>
@@ -160,8 +155,8 @@ export default function ClientePage() {
 
             {/* Paginación */}
             <div className={hstack({ justifyContent: 'space-between', px: '2' })}>
-                <p className={css({ fontSize: 'sm', color: 'gray.500', fontWeight: '500' })}>
-                    Mostrando <span className={css({ color: 'blue.600', fontWeight: 'bold' })}>{data?.items?.length || 0}</span> de {data?.totalCount || 0} registros
+                <p className={css({ fontSize: 'sm', color: 'gray.500' })}>
+                    Total: <span className={css({ fontWeight: 'bold' })}>{data?.totalCount || 0}</span> contactos
                 </p>
 
                 <div className={hstack({ gap: '2' })}>
@@ -180,49 +175,10 @@ export default function ClientePage() {
     );
 }
 
-// --- Estilos de Panda CSS (Sin cambios, manteniendo tu UI) ---
-const cardStyle = css({
-    bgColor: 'white',
-    borderRadius: '2xl',
-    border: '1px solid',
-    borderColor: 'gray.100',
-    boxShadow: 'sm',
-    overflow: 'hidden'
-});
-
-const thStyle = {
-    px: '6', py: '4',
-    fontSize: 'xs',
-    fontWeight: '800',
-    color: 'gray.400',
-    textTransform: 'uppercase',
-    letterSpacing: 'wider',
-    whiteSpace: 'nowrap'
-};
-
-const tdStyle = {
-    px: '6', py: '4',
-    fontSize: 'sm',
-    color: 'gray.600',
-    whiteSpace: 'nowrap'
-};
-
-const inputStyle = css({
-    w: 'full', p: '2.5', pl: '10',
-    bgColor: 'white', border: '1px solid', borderColor: 'gray.200',
-    borderRadius: 'xl', fontSize: 'sm', outline: 'none',
-    _focus: { borderColor: 'blue.400', boxShadow: '0 0 0 3px rgba(59, 130, 246, 0.1)' }
-});
-
-const actionBtnStyle = css({
-    p: '2', color: 'gray.400', borderRadius: 'lg', cursor: 'pointer',
-    transition: 'all 0.2s',
-    _hover: { color: 'blue.600', bgColor: 'blue.50' }
-});
-
-const paginationBtnStyle = css({
-    p: '2', borderRadius: 'xl', border: '1px solid', borderColor: 'gray.200',
-    cursor: 'pointer', transition: 'all 0.2s',
-    _disabled: { opacity: 0.4, cursor: 'not-allowed', pointerEvents: 'none' },
-    _hover: { bgColor: 'gray.50', borderColor: 'gray.300' }
-});
+// Estilos heredados del layout de Clientes
+const cardStyle = css({ bgColor: 'white', borderRadius: '2xl', border: '1px solid', borderColor: 'gray.100', boxShadow: 'sm', overflow: 'hidden' });
+const thStyle = { px: '6', py: '4', fontSize: 'xs', fontWeight: '800', color: 'gray.400', textTransform: 'uppercase', whiteSpace: 'nowrap' };
+const tdStyle = { px: '6', py: '4', fontSize: 'sm', color: 'gray.600', whiteSpace: 'nowrap' };
+const inputStyle = css({ w: 'full', p: '2.5', pl: '10', bgColor: 'white', border: '1px solid', borderColor: 'gray.200', borderRadius: 'xl', fontSize: 'sm', outline: 'none' });
+const actionBtnStyle = css({ p: '2', color: 'gray.400', borderRadius: 'lg', cursor: 'pointer', _hover: { color: 'blue.600', bgColor: 'blue.50' } });
+const paginationBtnStyle = css({ p: '2', borderRadius: 'xl', border: '1px solid', borderColor: 'gray.200', cursor: 'pointer', _disabled: { opacity: 0.4, pointerEvents: 'none' } });

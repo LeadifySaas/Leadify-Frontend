@@ -3,8 +3,12 @@ export interface Usuario {
     nombre: string;
     apellido: string;
     email: string;
-    nombreRol: string; // El campo que creamos en el DTO de C#
+    nombreRol: string; 
     activo: boolean;
+    telefono?: string;
+    fotoPerfil?: string;
+    areaSector?: string;
+    observaciones?: string;
 }
 
 export interface UsuarioDto extends Omit<Usuario, 'id'> {

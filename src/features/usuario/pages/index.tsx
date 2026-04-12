@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { css } from '../../../../styled-system/css';
 import { stack, hstack, center } from '../../../../styled-system/patterns';
-import { Search, Plus, Edit, Trash2, Users, ChevronLeft, ChevronRight } from "lucide-react";
+import { Search, Plus, Edit, Trash2, Users, ChevronLeft, ChevronRight, Phone, Briefcase, ShieldCheck } from "lucide-react";
 import { useNavigate } from "@tanstack/react-router";
 import { useUsuarios } from "../hooks/useUsuario";
 
@@ -11,12 +11,21 @@ export function UsuarioPage() {
     const [page, setPage] = useState(1);
     const size = 25;
 
-    const { UsuariosQuery } = useUsuarios(page, size, search);
+
+    const { UsuariosQuery, deleteUsuario } = useUsuarios(page, size, search);
     const { data, isLoading } = UsuariosQuery;
 
-    // Nota: Si en Swagger viste que el resultado es un array directo [], 
-    // usaremos 'data'. Si es un objeto con paginación, usamos 'data.items'.
     const usuarios = data?.items || data || [];
+
+    const handleDelete = async (id: number) => {
+        if (window.confirm("¿Estás seguro de que deseas eliminar este usuario?")) {
+            try {
+                await deleteUsuario(id);
+            } catch (error) {
+                console.error("Error al eliminar:", error);
+            }
+        }
+    };
 
     return (
         <div className={stack({ gap: '6', p: '6' })}>
@@ -29,7 +38,7 @@ export function UsuarioPage() {
                     </div>
                     <div>
                         <h1 className={css({ fontSize: '2xl', fontWeight: '800', color: '#1A365D' })}>Usuarios</h1>
-                        <p className={css({ fontSize: 'sm', color: 'gray.500' })}>Gestión de accesos y perfiles del sistema</p>
+                        <p className={css({ fontSize: 'sm', color: 'gray.500' })}>Gestión de usuarios del sistema</p>
                     </div>
                 </div>
 
@@ -50,67 +59,71 @@ export function UsuarioPage() {
                 <div className={css({ position: 'relative', flex: 1 })}>
                     <Search className={css({ position: 'absolute', left: '3', top: '50%', transform: 'translateY(-50%)', color: 'gray.400' })} size={18} />
                     <input
-                        placeholder="Buscar por nombre o email..."
+                        placeholder="Buscar por nombre, email o área..."
                         className={inputStyle}
                         value={search}
-                        onChange={(e) => setSearch(e.target.value)}
+                        onChange={(e) => {
+                            setSearch(e.target.value);
+                            setPage(1);
+                        }}
                     />
                 </div>
             </div>
 
-            {/* Tabla Estilizada */}
+            {/* Tabla Estilizada con Nuevas Columnas */}
             <div className={cardStyle}>
                 <table className={css({ w: 'full', borderCollapse: 'collapse' })}>
                     <thead>
                         <tr className={css({ borderBottom: '1px solid', borderColor: 'gray.100', textAlign: 'left' })}>
-                            <th className={css(thStyle)}>Nombre Completo</th>
-                            <th className={css(thStyle)}>Rol</th>
+                            <th className={css(thStyle)}>Usuario</th>
                             <th className={css(thStyle)}>Email</th>
+                            <th className={css(thStyle)}>Teléfono</th>
+                            <th className={css(thStyle)}>Área / Sector</th>
+                            <th className={css(thStyle)}>Rol del Sistema</th>
                             <th className={css(thStyle)}>Estado</th>
                             <th className={css({ ...thStyle, textAlign: 'right' })}>Acciones</th>
                         </tr>
                     </thead>
                     <tbody>
                         {isLoading ? (
-                            <tr><td colSpan={5} className={css(tdStyle)}>Cargando usuarios...</td></tr>
+                            <tr><td colSpan={6} className={css(tdStyle)}>Cargando usuarios...</td></tr>
                         ) : usuarios.length === 0 ? (
-                            <tr><td colSpan={5} className={css(tdStyle)}>No se encontraron usuarios.</td></tr>
+                            <tr><td colSpan={6} className={css(tdStyle)}>No se encontraron usuarios.</td></tr>
                         ) : usuarios.map((usuario: any) => (
-                            <tr key={usuario.id} className={css({
-                                borderBottom: '1px solid',
-                                borderColor: 'gray.50',
-                                _hover: { bgColor: 'gray.50/50' },
-                                transition: 'colors 0.2s'
-                            })}>
+                            <tr key={usuario.id} className={rowStyle}>
                                 <td className={css(tdStyle)}>
-                                    <span className={css({ fontWeight: '700', color: 'blue.700' })}>
-                                        {usuario.nombre} {usuario.apellido}
-                                    </span>
+                                    <div className={stack({ gap: '0' })}>
+                                        <span className={css({ fontWeight: '700', color: 'blue.700' })}>
+                                            {usuario.nombre} {usuario.apellido}
+                                        </span>
+                                     
+                                    </div>
                                 </td>
                                 <td className={css(tdStyle)}>
-                                    <span className={css({ 
-                                        fontSize: 'xs', 
-                                        bgColor: 'blue.50', 
-                                        color: 'blue.600', 
-                                        px: '2', py: '1', 
-                                        borderRadius: 'md',
-                                        fontWeight: 'bold'
-                                    })}>
-                                        {usuario.nombreRol}
-                                    </span>
+                                    <div className={hstack({ gap: '2', color: 'gray.500' })}>
+                                        <span className={css({ fontSize: 'xs' })}>{usuario.email|| '-'}</span>
+                                    </div>
                                 </td>
-                                <td className={css(tdStyle)}>{usuario.email}</td>
                                 <td className={css(tdStyle)}>
-                                    <span
-                                        className={css({
-                                            padding: '4px 8px',
-                                            borderRadius: '12px',
-                                            color: '#fff',
-                                            fontSize: '12px',
-                                            fontWeight: 'bold',
-                                            backgroundColor: usuario.activo ? '#28a745' : '#dc3545'
-                                        })}
-                                    >
+                                    <div className={hstack({ gap: '2', color: 'gray.500' })}>
+                                        <Phone size={14} />
+                                        <span className={css({ fontSize: 'xs' })}>{usuario.telefono || '-'}</span>
+                                    </div>
+                                </td>
+                                <td className={css(tdStyle)}>
+                                    <div className={hstack({ gap: '2', color: 'gray.600' })}>
+                                        <Briefcase size={14} className={css({ color: 'blue.300' })} />
+                                        <span className={css({ fontWeight: '500' })}>{usuario.areaSector || 'No asignado'}</span>
+                                    </div>
+                                </td>
+                                <td className={css(tdStyle)}>
+                                    <div className={hstack({ gap: '2' })}>
+                                        <ShieldCheck size={14} className={css({ color: 'green.400' })} />
+                                        <span className={badgeStyle}>{usuario.nombreRol}</span>
+                                    </div>
+                                </td>
+                                <td className={css(tdStyle)}>
+                                    <span className={usuario.activo ? statusActiveStyle : statusInactiveStyle}>
                                         {usuario.activo ? 'Activo' : 'Inactivo'}
                                     </span>
                                 </td>
@@ -118,7 +131,7 @@ export function UsuarioPage() {
                                     <div className={hstack({ gap: '1', justifyContent: 'flex-end' })}>
                                         <button 
                                             className={actionBtnStyle} 
-                                            title="Editar"
+                                            title="Editar Perfil"
                                             onClick={() => navigate({
                                                 to: '/administracion/usuarios/$id',
                                                 params: { id: usuario.id.toString() }
@@ -126,7 +139,11 @@ export function UsuarioPage() {
                                         >
                                             <Edit size={16} />
                                         </button>
-                                        <button className={`${actionBtnStyle} ${css({ color: 'red.400', _hover: { color: 'red.600', bgColor: 'red.50' } })}`} title="Eliminar">
+                                        <button 
+                                            className={`${actionBtnStyle} ${css({ color: 'red.400', _hover: { color: 'red.600', bgColor: 'red.50' } })}`} 
+                                            title="Dar de baja"
+                                            onClick={() => handleDelete(usuario.id)}
+                                        >
                                             <Trash2 size={16} />
                                         </button>
                                     </div>
@@ -151,7 +168,7 @@ export function UsuarioPage() {
                     >
                         <ChevronLeft size={18} />
                     </button>
-                    <div className={center({ px: '4', h: '40px', borderRadius: 'xl', border: '1px solid', borderColor: 'gray.200', fontSize: 'sm', fontWeight: 'bold' })}>
+                    <div className={pageIndicatorStyle}>
                         {page}
                     </div>
                     <button
@@ -177,6 +194,13 @@ const cardStyle = css({
     overflow: 'hidden'
 });
 
+const rowStyle = css({
+    borderBottom: '1px solid',
+    borderColor: 'gray.50',
+    _hover: { bgColor: 'gray.50/50' },
+    transition: 'colors 0.2s'
+});
+
 const thStyle = {
     px: '6', py: '4',
     fontSize: 'xs',
@@ -191,6 +215,33 @@ const tdStyle = {
     fontSize: 'sm',
     color: 'gray.600'
 };
+
+const badgeStyle = css({ 
+    fontSize: 'xs', 
+    bgColor: 'blue.50', 
+    color: 'blue.600', 
+    px: '2', py: '1', 
+    borderRadius: 'md',
+    fontWeight: 'bold'
+});
+
+const statusActiveStyle = css({
+    padding: '4px 10px',
+    borderRadius: '12px',
+    color: '#fff',
+    fontSize: '11px',
+    fontWeight: 'bold',
+    backgroundColor: '#28a745'
+});
+
+const statusInactiveStyle = css({
+    padding: '4px 10px',
+    borderRadius: '12px',
+    color: '#fff',
+    fontSize: '11px',
+    fontWeight: 'bold',
+    backgroundColor: '#dc3545'
+});
 
 const inputStyle = css({
     w: 'full', p: '2.5', pl: '10',
@@ -210,4 +261,10 @@ const paginationBtnStyle = css({
     cursor: 'pointer', transition: 'all 0.2s',
     _disabled: { opacity: 0.4, cursor: 'not-allowed', pointerEvents: 'none' },
     _hover: { bgColor: 'gray.50', borderColor: 'gray.300' }
+});
+
+const pageIndicatorStyle = center({ 
+    px: '4', h: '40px', borderRadius: 'xl', 
+    border: '1px solid', borderColor: 'gray.200', 
+    fontSize: 'sm', fontWeight: 'bold' 
 });
