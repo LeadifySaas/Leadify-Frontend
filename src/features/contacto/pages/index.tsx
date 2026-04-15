@@ -102,15 +102,22 @@ export default function ContactoPage() {
                                             {contacto.puesto || 'No especificado'}
                                         </span>
                                     </td>
+                                    
                                     <td className={css(tdStyle)}>
                                         <div className={hstack({ gap: '1.5' })}>
                                             <Building2 size={14} className={css({ color: 'gray.400' })} />
                                             <span className={css({ fontSize: 'xs', fontWeight: '600' })}>
-                                                {/* Aquí asumo que el DTO trae el nombre de la empresa vinculada */}
-                                                {contacto.empresaNombre || contacto.clienteNombre || 'Independiente'}
+                                                {/* Priorizamos empresa, luego cliente, y si no hay nada, independiente */}
+                                                {contacto.empresa?.razonSocial 
+                                                    ? contacto.empresa.razonSocial 
+                                                    : contacto.cliente 
+                                                        ? `${contacto.cliente.apellido}, ${contacto.cliente.nombre}`
+                                                        : 'Independiente'
+                                                }
                                             </span>
                                         </div>
                                     </td>
+
                                     <td className={css(tdStyle)}>
                                         <div className={hstack({ gap: '2' })}>
                                             <Mail size={14} className={css({ color: 'blue.400' })} />
@@ -170,6 +177,8 @@ export default function ContactoPage() {
                         <ChevronRight size={18} />
                     </button>
                 </div>
+
+                pag pag
             </div>
         </div>
     );

@@ -4,19 +4,20 @@ export const contactoSchema = z.object({
     nombre: z.string().min(2, "El nombre es muy corto"),
     apellido: z.string().min(2, "El apellido es muy corto"),
     puesto: z.string().optional().nullable().transform(val => val ?? ""),
+    
+    // Si la DB exige que sea único, mejor obligarlo aquí para evitar errores 500
     email: z.string()
-        .email("Email inválido")
-        .nullable()
-        .or(z.literal("")), // Permite string vacío si no es obligatorio
+        .min(1, "El email es obligatorio") 
+        .email("Email inválido"),
+    
     telefono: z.string().optional().nullable().transform(val => val ?? ""),
     
-    // IDs de relación: los procesamos a número por si vienen del select como string
     clienteId: z.preprocess(
-        (val) => (val === "" ? undefined : Number(val)),
+        (val) => (val === "" || val === null ? undefined : Number(val)),
         z.number().optional()
     ),
     empresaId: z.preprocess(
-        (val) => (val === "" ? undefined : Number(val)),
+        (val) => (val === "" || val === null ? undefined : Number(val)),
         z.number().optional()
     ),
     

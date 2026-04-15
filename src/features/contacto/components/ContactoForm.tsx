@@ -1,14 +1,14 @@
 import { css } from '../../../../styled-system/css';
 import { stack, grid, hstack, center } from '../../../../styled-system/patterns';
-import { Save, ArrowLeft, User, Phone, Mail, Building2, Info, MessageSquare } from 'lucide-react';
+import { Save, ArrowLeft, User, Phone, Mail, Building2, MessageSquare } from 'lucide-react';
 import { useNavigate } from '@tanstack/react-router';
 import { useForm, type SubmitHandler } from "react-hook-form";
 import { useEffect } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { contactoSchema, type ContactoFormValues } from "../schemas";
 import { useContactos } from "../hooks/useContacto";
-import { useClientes } from "../../cliente/hooks/useClientes"; // Necesario para el select
-import { useEmpresas } from "../../empresa/hooks/useEmpresas"; // Necesario para el select
+import { useClientes } from "../../cliente/hooks/useClientes"; 
+import { useEmpresas } from "../../empresa/hooks/useEmpresas";
 
 interface Props {
     mode: 'create' | 'edit';
@@ -19,20 +19,26 @@ export function ContactoForm({ mode, initialData }: Props) {
     const navigate = useNavigate();
     const { createContacto, updateContacto, isCreating } = useContactos();
     
-    // Traemos datos de empresas y clientes para los Selects
     const { clientesQuery } = useClientes(1, 100); 
     const { empresasQuery } = useEmpresas(1, 100);
 
-    const { register, handleSubmit, watch, reset, formState: { errors } } = useForm<ContactoFormValues>({
+    const { register, handleSubmit, watch, reset, setError, formState: { errors } } = useForm<ContactoFormValues>({
         resolver: zodResolver(contactoSchema),
         defaultValues: initialData || {
             activo: true,
+            nombre: "",
+            apellido: "",
+            puesto: "",
+            email: "",
+            telefono: "",
+            observaciones: "",
+            clienteId: "",
+            empresaId: ""
         },
     });
 
     useEffect(() => {
         if (initialData) {
-            // Limpieza de nulos similar a la que usaste en Clientes
             const formattedData = {
                 ...initialData,
                 puesto: initialData.puesto ?? "",
@@ -54,8 +60,20 @@ export function ContactoForm({ mode, initialData }: Props) {
                 await updateContacto({ id: initialData.id, ...data });
             }
             navigate({ to: '/administracion/contactos' });
-        } catch (error) {
-            console.error("Error al guardar contacto", error);
+        } catch (error:any) {
+            const serverMessage = error.response?.data?.message;
+            const statusCode = error.response?.status;
+
+            if (statusCode === 400 && serverMessage?.toLowerCase().includes("email")) {
+                setError("email", { 
+                    type: "manual", 
+                    message: serverMessage 
+                });
+             
+            } else {
+              
+                console.error("Error crítico:", error);
+            }
         }
     };
 
@@ -100,11 +118,11 @@ export function ContactoForm({ mode, initialData }: Props) {
                 {/* Columna Principal */}
                 <div className={css({ lg: { gridColumn: 'span 2' }, spaceY: '6' })}>
 
-                    {/* Card: Datos Personales */}
+                    {/* Card: Datos Personales y de Contacto */}
                     <div className={cardStyle}>
                         <div className={hstack({ mb: '4', gap: '2' })}>
                             <User size={18} className={css({ color: 'blue.600' })} />
-                            <h3 className={sectionTitleStyle}>Información Personal</h3>
+                            <h3 className={sectionTitleStyle}>Información del Contacto</h3>
                         </div>
                         <div className={grid({ columns: 2, gap: '4' })}>
                             <div className={stack({ gap: '1.5' })}>
@@ -121,18 +139,73 @@ export function ContactoForm({ mode, initialData }: Props) {
                                 <label className={labelStyle}>Cargo / Puesto</label>
                                 <input {...register("puesto")} className={inputStyle} placeholder="Ej: Gerente de Ventas" />
                             </div>
+
                             <div className={stack({ gap: '1.5' })}>
-                                <label className={labelStyle}>Estado</label>
+                                <label className={labelStyle}>ESTADO DEL CONTACTO</label>
                                 <label className={hstack({
-                                    cursor: 'pointer', userSelect: 'none', gap: '3', p: '2',
-                                    borderRadius: 'xl', border: '1px solid', borderColor: 'gray.200',
-                                    bgColor: 'gray.50', h: 'full'
+                                    cursor: 'pointer', 
+                                    userSelect: 'none', 
+                                    gap: '3', 
+                                    p: '2.5', // Ajustado para coincidir con la imagen
+                                    borderRadius: 'xl', 
+                                    border: '1px solid', 
+                                    borderColor: 'gray.100', // Más suave como en la captura
+                                    bgColor: 'gray.50/50', 
+                                    h: '45px',
+                                    transition: 'all 0.2s',
+                                    _hover: { borderColor: 'gray.200' }
                                 })}>
-                                    <input type="checkbox" {...register("activo")} className={css({ w: '4', h: '4' })} />
-                                    <span className={css({ fontSize: 'sm', fontWeight: '600' })}>
+                                    {/* Switch Visual */}
+                                    <div className={css({
+                                        position: 'relative',
+                                        w: '44px',
+                                        h: '24px',
+                                        bgColor: watch("activo") ? '#22C55E' : 'gray.300', // El verde de tu imagen
+                                        borderRadius: 'full',
+                                        transition: 'all 0.3s'
+                                    })}>
+                                        <div className={css({
+                                            position: 'absolute',
+                                            top: '2px',
+                                            left: watch("activo") ? '22px' : '2px',
+                                            w: '20px',
+                                            h: '20px',
+                                            bgColor: 'white',
+                                            borderRadius: 'full',
+                                            transition: 'all 0.3s',
+                                            boxShadow: 'sm'
+                                        })} />
+                                    </div>
+                                    <input 
+                                        type="checkbox" 
+                                        {...register("activo")} 
+                                        className={css({ display: 'none' })} // Ocultamos el check nativo
+                                    />
+                                    <span className={css({ 
+                                        fontSize: 'sm', 
+                                        fontWeight: '600', 
+                                        color: watch("activo") ? '#22C55E' : 'gray.500' 
+                                    })}>
                                         {watch("activo") ? 'Activo' : 'Inactivo'}
                                     </span>
                                 </label>
+                            </div>
+
+                            <div className={stack({ gap: '1.5' })}>
+                                <label className={labelStyle}>Email</label>
+                                <div className={css({ position: 'relative' })}>
+                                    <Mail size={16} className={css({ position: 'absolute', left: '3', top: '50%', transform: 'translateY(-50%)', color: 'gray.400' })} />
+                                    <input {...register("email")} className={css({ ...inputStyleRaw, pl: '10', w: 'full' })} placeholder="correo@ejemplo.com" />
+                                </div>
+                                {errors.email && <span className={errorStyle}>{errors.email.message}</span>}
+                            </div>
+
+                            <div className={stack({ gap: '1.5' })}>
+                                <label className={labelStyle}>Teléfono</label>
+                                <div className={css({ position: 'relative' })}>
+                                    <Phone size={16} className={css({ position: 'absolute', left: '3', top: '50%', transform: 'translateY(-50%)', color: 'gray.400' })} />
+                                    <input {...register("telefono")} className={css({ ...inputStyleRaw, pl: '10', w: 'full' })} placeholder="+54 9 ..." />
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -207,7 +280,6 @@ export function ContactoForm({ mode, initialData }: Props) {
     );
 }
 
-// --- Estilos Consistentes ---
 const cardStyle = css({ p: '6', bgColor: 'white', borderRadius: '2xl', border: '1px solid', borderColor: 'gray.100', boxShadow: 'sm' });
 const sectionTitleStyle = css({ fontWeight: '800', color: '#1A365D', fontSize: 'md' });
 const labelStyle = css({ fontSize: 'xs', fontWeight: 'bold', color: 'gray.500', textTransform: 'uppercase', letterSpacing: 'wider' });

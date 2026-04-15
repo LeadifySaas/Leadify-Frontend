@@ -70,10 +70,12 @@ export function Sidebar() {
                         isCollapsed={isCollapsed}
                         links={[
                             { to: '/administracion/usuarios', label: 'Usuarios' },
+                            { to: '/administracion/contactos', label: 'Contactos' },
                             { to: '/administracion/clientes', label: 'Clientes' },
-                            { to: '/administracion/roles', label: 'Roles y Permisos' },
                             { to: '/administracion/empresas', label: 'Empresas' },
-                            { to: '/administracion/contactos', label: 'Contactos' }
+                            { to: '/administracion/roles', label: 'Roles y Permisos' },
+                            
+                            
                         ]}
                     />
                     {/* Administración Materiales */}
