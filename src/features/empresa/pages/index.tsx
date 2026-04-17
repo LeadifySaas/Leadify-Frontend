@@ -2,25 +2,25 @@ import { useState } from "react";
 import { css } from '../../../../styled-system/css';
 import { stack, hstack, center } from '../../../../styled-system/patterns';
 import { 
-    Search, Plus, Edit, Trash2, Users, 
+    Search, Plus, Edit, Trash2, Building2, 
     ChevronLeft, ChevronRight 
 } from "lucide-react";
 import { useNavigate } from "@tanstack/react-router";
-import { useClientes } from "../hooks/useClientes";
+import { useEmpresas } from "../hooks/useEmpresas";
 
-export default function ClientePage() {
+export default function EmpresaPage() {
     const navigate = useNavigate();
     const [search, setSearch] = useState("");
     const [page, setPage] = useState(1);
     const size = 25;
 
-    const { clientesQuery, deleteCliente } = useClientes(page, size, search);
-    const { data, isLoading } = clientesQuery;
+    const { empresasQuery, deleteEmpresa } = useEmpresas(page, size, search);
+    const { data, isLoading } = empresasQuery;
 
     const handleDelete = async (id: number) => {
-        if (window.confirm("¿Estás seguro de que deseas eliminar este cliente?")) {
+        if (window.confirm("¿Estás seguro de que deseas eliminar esta empresa?")) {
             try {
-                await deleteCliente(id);
+                await deleteEmpresa(id);
             } catch (error) {
                 console.error("Error al eliminar:", error);
             }
@@ -34,23 +34,23 @@ export default function ClientePage() {
             <div className={hstack({ justifyContent: 'space-between' })}>
                 <div className={hstack({ gap: '3' })}>
                     <div className={center({ p: '2.5', bgColor: 'blue.50', color: 'blue.600', borderRadius: 'xl' })}>
-                        <Users size={24} />
+                        <Building2 size={24} />
                     </div>
                     <div>
-                        <h1 className={css({ fontSize: '2xl', fontWeight: '800', color: '#1A365D' })}>Clientes</h1>
-                        <p className={css({ fontSize: 'sm', color: 'gray.500' })}>Gestión integral de clientes y estados de cuenta</p>
+                        <h1 className={css({ fontSize: '2xl', fontWeight: '800', color: '#1A365D' })}>Empresas</h1>
+                        <p className={css({ fontSize: 'sm', color: 'gray.500' })}>Gestión integral de razones sociales y datos fiscales</p>
                     </div>
                 </div>
 
                 <button
-                    onClick={() => navigate({ to: '/administracion/clientes/nuevo' })}
+                    onClick={() => navigate({ to: '/administracion/empresas/nuevo' })}
                     className={hstack({
                         px: '5', py: '2.5', bgColor: 'blue.600', color: 'white',
                         borderRadius: 'xl', fontWeight: 'bold', cursor: 'pointer',
                         _hover: { bgColor: 'blue.700' }, transition: 'all 0.2s'
                     })}
                 >
-                    <Plus size={18} /> Nuevo Cliente
+                    <Plus size={18} /> Nueva Empresa
                 </button>
             </div>
 
@@ -59,7 +59,7 @@ export default function ClientePage() {
                 <div className={css({ position: 'relative', flex: 1 })}>
                     <Search className={css({ position: 'absolute', left: '3', top: '50%', transform: 'translateY(-50%)', color: 'gray.400' })} size={18} />
                     <input
-                        placeholder="Buscar por nombre o CUIL..."
+                        placeholder="Buscar por razón social o CUIT..."
                         className={inputStyle}
                         value={search}
                         onChange={(e) => setSearch(e.target.value)}
@@ -73,22 +73,20 @@ export default function ClientePage() {
                     <table className={css({ w: 'full', borderCollapse: 'collapse', minW: '1200px' })}>
                         <thead>
                             <tr className={css({ borderBottom: '1px solid', borderColor: 'gray.100', textAlign: 'left' })}>
-                                <th className={css(thStyle)}>Cliente</th>
-                                <th className={css(thStyle)}>CUIL</th>
-                                <th className={css(thStyle)}>Email</th>
-                                <th className={css(thStyle)}>Teléfono</th>
+                                <th className={css(thStyle)}>Empresa</th>
+                                <th className={css(thStyle)}>CUIT</th>
+                                <th className={css(thStyle)}>Email Facturación</th>
+                                <th className={css(thStyle)}>Dirección Fiscal</th>
                                 <th className={css(thStyle)}>Condición IVA</th>
-                                <th className={css(thStyle)}>Límite Crédito</th>
-                                <th className={css(thStyle)}>Localidad</th>
                                 <th className={css(thStyle)}>Estado</th>
                                 <th className={css({ ...thStyle, textAlign: 'right' })}>Acciones</th>
                             </tr>
                         </thead>
                         <tbody>
                             {isLoading ? (
-                                <tr><td colSpan={9} className={css(tdStyle)}>Cargando registros...</td></tr>
-                            ) : data?.items?.map((cliente: any) => (
-                                <tr key={cliente.id} className={css({
+                                <tr><td colSpan={7} className={css(tdStyle)}>Cargando registros...</td></tr>
+                            ) : data?.items?.map((empresa: any) => (
+                                <tr key={empresa.id} className={css({
                                     borderBottom: '1px solid',
                                     borderColor: 'gray.50',
                                     _hover: { bgColor: 'gray.50/50' },
@@ -96,29 +94,19 @@ export default function ClientePage() {
                                 })}>
                                     <td className={css(tdStyle)}>
                                         <span className={css({ fontWeight: '700', color: 'blue.700' })}>
-                                            {cliente.apellido && cliente.nombre ? `${cliente.apellido}, ${cliente.nombre}` : 'Sin nombre'}
+                                            {empresa.razonSocial || 'Sin nombre'}
                                         </span>
                                     </td>
                                     <td className={css(tdStyle)}>
                                         <code className={css({ fontSize: 'xs', bgColor: 'gray.100', px: '2', py: '1', borderRadius: 'md' })}>
-                                            {cliente.cuil || '-'}
+                                            {empresa.cuit || '-'}
                                         </code>
                                     </td>
-                                    <td className={css(tdStyle)}>{cliente.email}</td>
-                                    <td className={css(tdStyle)}>{cliente.telefono || '-'}</td>
+                                    <td className={css(tdStyle)}>{empresa.emailFacturacion || '-'}</td>
+                                    <td className={css(tdStyle)}>{empresa.direccionFiscal || '-'}</td>
                                     <td className={css(tdStyle)}>
                                         <span className={css({ fontSize: 'xs', color: 'gray.600' })}>
-                                            {cliente.condicionIVA}
-                                        </span>
-                                    </td>
-                                    <td className={css(tdStyle)}>
-                                        <span className={css({ fontWeight: '600', color: 'green.600' })}>
-                                            ${cliente.limiteCredito?.toLocaleString('es-AR')}
-                                        </span>
-                                    </td>
-                                    <td className={css(tdStyle)}>
-                                        <span className={css({ fontSize: 'xs' })}>
-                                            {cliente.localidad || '-'}{cliente.provincia ? `, ${cliente.provincia}` : ''}
+                                            {empresa.condicionIva}
                                         </span>
                                     </td>
                                     <td className={css(tdStyle)}>
@@ -129,24 +117,24 @@ export default function ClientePage() {
                                                 color: '#fff',
                                                 fontSize: '11px',
                                                 fontWeight: 'bold',
-                                                backgroundColor: cliente.activo ? '#28a745' : '#dc3545'
+                                                backgroundColor: empresa.activo ? '#28a745' : '#dc3545'
                                             })}
                                         >
-                                            {cliente.activo ? 'Activo' : 'Inactivo'}
+                                            {empresa.activo ? 'Activo' : 'Inactivo'}
                                         </span>
                                     </td>
                                     <td className={`${tdStyle} ${css({ textAlign: 'right' })}`}>
                                         <div className={hstack({ gap: '1', justifyContent: 'flex-end' })}>
                                             <button className={actionBtnStyle} title="Editar"
                                                 onClick={() => navigate({
-                                                    to: '/administracion/clientes/$id',
-                                                    params: { id: cliente.id.toString() }
+                                                    to: '/administracion/empresas/$id',
+                                                    params: { id: empresa.id.toString() }
                                                 })}>
                                                 <Edit size={16} />
                                             </button>
                                             <button className={`${actionBtnStyle} ${css({ color: 'red.400', _hover: { color: 'red.600', bgColor: 'red.50' } })}`} 
-                                                title="Dar de baja"
-                                                onClick={() => handleDelete(cliente.id)}>
+                                                title="Eliminar"
+                                                onClick={() => handleDelete(empresa.id)}>
                                                 <Trash2 size={16} />
                                             </button>
                                         </div>
@@ -180,7 +168,7 @@ export default function ClientePage() {
     );
 }
 
-// --- Estilos de Panda CSS (Sin cambios, manteniendo tu UI) ---
+// --- Estilos de Panda CSS ---
 const cardStyle = css({
     bgColor: 'white',
     borderRadius: '2xl',
