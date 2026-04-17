@@ -19,7 +19,7 @@ export function EmpresaForm({ mode, initialData }: Props) {
     const { createEmpresa, updateEmpresa, isCreating } = useEmpresas();
     const { clientesQuery } = useClientes(1, 100); // Para el select de Clientes
 
-    const { register, setValue, handleSubmit, watch, reset, formState: { errors } } = useForm<EmpresaFormValues>({
+    const { register, setValue, handleSubmit, watch, setError, reset, formState: { errors } } = useForm<EmpresaFormValues>({
         resolver: zodResolver(empresaSchema),
         defaultValues: initialData || {
             condicionIva: "Responsable Inscripto",
@@ -47,8 +47,32 @@ export function EmpresaForm({ mode, initialData }: Props) {
                 await updateEmpresa({ id: initialData.id, ...data });
             }
             navigate({ to: '/administracion/empresas' });
-        } catch (error) {
-            console.error("Error", error);
+        } catch (error : any) {
+            // 1. Extraemos solo la data que nos importa
+            const serverResponse = error.response?.data;
+            const serverMessage = serverResponse?.message || "";
+
+            // 2. Si es un error de CUIT duplicado, lo manejamos silenciosamente para la consola
+            if (serverMessage.toLowerCase().includes("cuit")) {
+                setError("cuit", { 
+                    type: "manual", 
+                    message: serverMessage // "El CUIT ya se encuentra registrado"
+                });
+                // NO usamos console.error aquí para no ensuciar
+            } 
+            // 3. Si es un error de Email duplicado
+            else if (serverMessage.toLowerCase().includes("email")) {
+                setError("emailFacturacion", { 
+                    type: "manual", 
+                    message: serverMessage 
+                });
+            }
+            // 4. Solo si es un error que NO conocemos, lo mandamos a la consola de forma limpia
+            else {
+                console.warn("Error de validación del servidor:", serverMessage);
+                // Si querés ver el error completo solo en desarrollo pero sin el rojo gigante:
+                // console.dir(error); 
+            }
         }
     };
 

@@ -37,7 +37,7 @@ export function ClienteForm({ mode, initialData }: Props) {
 
     useEffect(() => {
     if (initialData) {
-        console.log("Datos recibidos del backend:", initialData);
+    
 
         const formattedData = {
             ...initialData,
@@ -210,6 +210,7 @@ export function ClienteForm({ mode, initialData }: Props) {
                                     </span>
                                 </label>
                             </div>
+                            
                         </div>
                     </div>
 
