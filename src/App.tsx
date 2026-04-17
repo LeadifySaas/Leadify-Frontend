@@ -12,29 +12,39 @@ function App({ children }: { children: ReactNode }) {
         minHeight: '100vh',
         width: '100%',
         bgColor: '#F4F7F6',
-        color: '#1A365D',
-        fontFamily: 'sans-serif'
+        color: '#1A365D'
       })}
     >
       {token && (
-        <aside className={css({
-          width: '260px',
-          bgColor: '#1A365D',
-          color: 'white',
-          boxShadow: 'xl'
-        })}>
-          <div className={css({ p: '25px', fontSize: 'xl', fontWeight: 'bold', borderBottom: '1px solid #2D4A77' })}>
+        <aside
+          className={css({
+            width: '260px',
+            bgColor: '#1A365D',
+            color: 'white',
+            boxShadow: 'xl'
+          })}
+        >
+          <div
+            className={css({
+              p: '25px',
+              fontSize: 'xl',
+              fontWeight: 'bold',
+              borderBottom: '1px solid #2D4A77'
+            })}
+          >
             Leadify CRM
           </div>
         </aside>
       )}
 
-      <main className={css({
-        flex: 1,
-        display: 'flex',
-        flexDirection: 'column',
-        overflowY: 'auto'
-      })}>
+      <main
+        className={css({
+          flex: 1,
+          display: 'flex',
+          flexDirection: 'column',
+          overflowY: 'auto'
+        })}
+      >
         {children}
       </main>
     </div>
