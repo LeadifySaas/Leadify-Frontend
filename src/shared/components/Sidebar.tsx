@@ -71,7 +71,8 @@ export function Sidebar() {
                         links={[
                             { to: '/administracion/usuarios', label: 'Usuarios' },
                             { to: '/administracion/clientes', label: 'Clientes' },
-                            { to: '/administracion/roles', label: 'Roles y Permisos' }
+                            { to: '/administracion/roles', label: 'Roles y Permisos' },
+                            { to: '/administracion/sucursales', label: 'Sucursales' }
                         ]}
                     />
                     {/* Administración Materiales */}
