@@ -129,13 +129,14 @@ export default function RemitosPage() {
                                 </td>
                             </tr>
                         ) : remitos.map((r: any) => (
+                           
                             <tr key={r.id} className={rowStyle}>
                                 <td className={css(tdStyle)}>
                                     <code className={numeroRemitoStyle}>{r.numeroRemito}</code>
                                 </td>
                                 <td className={css(tdStyle)}>
                                     <div className={stack({ gap: '0' })}>
-                                        <span className={css({ fontWeight: '700', color: 'gray.800' })}>{r.clienteNombre || 'S/D'}</span>
+                                        <span className={css({ fontWeight: '700', color: 'gray.800' })}>{r.clienteNombre|| 'S/D'} {r.clienteApellido}</span>
                                         <span className={css({ fontSize: 'xs', color: 'gray.400' })}>{r.sedeNombre}</span>
                                     </div>
                                 </td>

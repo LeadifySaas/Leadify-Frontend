@@ -149,7 +149,7 @@ export function RemitoForm({ mode, initialData }: { mode: 'create' | 'edit'; ini
                                     <label className={labelStyle}>Cliente</label>
                                     <select {...register("clienteId", { valueAsNumber: true })} className={getFieldStyle(errors.clienteId)}>
                                         <option value={0}>Seleccione un cliente...</option>
-                                        {clientes.map((c: any) => <option key={c.id} value={c.id}>{c.razonSocial}</option>)}
+                                        {clientes.map((c: any) => <option key={c.id} value={c.id}>{c.nombre} {c.apellido} , {c.cuil}</option>)}
                                     </select>
                                     {errors.clienteId && <span className={errorStyle}>{errors.clienteId.message}</span>}
                                 </div>
