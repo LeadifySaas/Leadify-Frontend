@@ -1,19 +1,10 @@
-import { useState } from 'react';
-import { css } from '../../../../styled-system/css';
-import { stack, hstack, center } from '../../../../styled-system/patterns';
-import {
-  Search,
-  Plus,
-  Edit,
-  Trash2,
-  Building2,
-  ChevronLeft,
-  ChevronRight,
-  MapPin
-} from 'lucide-react';
-import { useNavigate } from '@tanstack/react-router';
-import { useSedes } from '../hooks/useSedes';
-import { ConfirmDialog } from '../components/ConfirmDialog';
+import { useState } from "react";
+import { css } from '@/styled-system/css';
+import { stack, hstack, center } from '@/styled-system/patterns';
+import { Search, Plus, Edit, Trash2, Building2, ChevronLeft, ChevronRight, MapPin } from "lucide-react";
+import { useNavigate } from "@tanstack/react-router";
+import { useSedes } from "../hooks/useSedes";
+import { ConfirmDialog } from "../components/ConfirmDialog";
 
 export default function SucursalesPage() {
   const navigate = useNavigate();

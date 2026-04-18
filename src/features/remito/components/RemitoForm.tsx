@@ -21,19 +21,14 @@ import {
   Box
 } from 'lucide-react';
 import { toast } from 'react-toastify';
-import { remitoSchema, type RemitoFormValues } from '../schemas';
-import { useRemitos } from '../hooks/useRemitos';
-import { useClientes } from '@/features/cliente/hooks/useClientes';
-import { useSedes } from '@/features/sucursal/hooks/useSedes';
-import { useArticulos } from '@/features/articulo/hooks/useArticulos';
-import { ErrorModal } from '@/shared/components/ui/ErrorModal';
-import { css } from '../../../../styled-system/css';
-import {
-  stack,
-  grid,
-  hstack,
-  center
-} from '../../../../styled-system/patterns';
+import { remitoSchema, type RemitoFormValues } from "../schemas";
+import { useRemitos } from "../hooks/useRemitos";
+import { useClientes } from "@/features/cliente/hooks/useClientes";
+import { useSedes } from "@/features/sucursal/hooks/useSedes";
+import { useArticulos } from "@/features/articulo/hooks/useArticulos";
+import { ErrorModal } from "@/shared/components/ui/ErrorModal";
+import { css } from '@/styled-system/css';
+import { stack, grid, hstack, center } from '@/styled-system/patterns';
 
 export function RemitoForm({
   mode,
