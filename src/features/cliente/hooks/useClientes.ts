@@ -32,10 +32,18 @@ export const useClientes = (page?: number, size?: number, search?: string) => {
     });
 
     const deleteMutation = useMutation({
-        mutationFn: (id: number) => clienteApi.delete(id),
-        onSuccess: () => queryClient.invalidateQueries({ queryKey: ["clientes"] }),
-    });
-
+    mutationFn: (id: number) => {
+        console.log("ID que llega a la mutation:", id); // <--- Log 1
+        return clienteApi.delete(id);
+    },
+    onSuccess: () => {
+        console.log("Borrado exitoso"); // <--- Log 2
+        queryClient.invalidateQueries({ queryKey: ["clientes"] });
+    },
+    onError: (err) => {
+        console.log("Error al borrar:", err); // <--- Log 3
+    }
+});
     return {
         clientesQuery,
         useClienteQuery,

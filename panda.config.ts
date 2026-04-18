@@ -1,18 +1,32 @@
 import { defineConfig } from '@pandacss/dev'
 
 export default defineConfig({
-    // Whether to use css reset
     preflight: true,
 
-    // Where to look for your css declarations
+    theme: {
+        extend: {
+            tokens: {
+                colors: {
+                    text: {
+                        primary: { value: '{colors.slate.900}' },
+                        secondary: { value: '{colors.slate.600}' },
+                        disabled: { value: '{colors.slate.400}' },
+                    },
+
+                    state: {
+                        success: { value: '{colors.green.600}' },
+                        progress: { value: '{colors.emerald.500}' },
+                        warning: { value: '{colors.amber.500}' },
+                        error: { value: '{colors.red.600}' },
+                        info: { value: '{colors.blue.500}' },
+                    },
+                },
+            },
+        },
+    },
+
     include: ['./src/**/*.{js,jsx,ts,tsx}', './pages/**/*.{js,jsx,ts,tsx}'],
-
-    // Files to exclude
     exclude: [],
-
-    // Generates JSX utilities with options of React, Preact, Qwik, Solid, Vue
     jsxFramework: 'react',
-
-    // The output directory for your css system
-    outdir: 'styled-system'
+    outdir: 'styled-system',
 })
