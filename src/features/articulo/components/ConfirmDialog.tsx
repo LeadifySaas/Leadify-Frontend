@@ -1,6 +1,6 @@
 import * as AlertDialog from '@radix-ui/react-alert-dialog';
-import { css } from '../../../../styled-system/css';
-import { hstack, stack, center } from '../../../../styled-system/patterns';
+import { css } from '@/styled-system/css';
+import { hstack, stack, center } from '@/styled-system/patterns';
 import { AlertCircle } from 'lucide-react';
 import { type ReactNode } from 'react';
 
