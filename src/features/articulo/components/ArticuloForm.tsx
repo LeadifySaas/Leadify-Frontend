@@ -5,8 +5,8 @@ import { useNavigate } from '@tanstack/react-router';
 import { Save, ArrowLeft, Package, BadgeDollarSign, Settings2 } from 'lucide-react';
 import { articuloSchema, type ArticuloFormValues } from "../schemas";
 import { useArticulos } from "../hooks/useArticulos";
-import { css } from '../../../../styled-system/css';
-import { stack, grid, hstack, center } from '../../../../styled-system/patterns';
+import { css } from '@/styled-system/css';
+import { stack, grid, hstack, center } from '@/styled-system/patterns';
 
 interface Props {
     mode: 'create' | 'edit';

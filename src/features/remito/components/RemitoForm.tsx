@@ -10,8 +10,8 @@ import { useClientes } from "@/features/cliente/hooks/useClientes";
 import { useSedes } from "@/features/sucursal/hooks/useSedes";
 import { useArticulos } from "@/features/articulo/hooks/useArticulos";
 import { ErrorModal } from "@/shared/components/ui/ErrorModal";
-import { css } from '../../../../styled-system/css';
-import { stack, grid, hstack, center } from '../../../../styled-system/patterns';
+import { css } from '@/styled-system/css';
+import { stack, grid, hstack, center } from '@/styled-system/patterns';
 
 export function RemitoForm({ mode, initialData }: { mode: 'create' | 'edit'; initialData?: any }) {
     const navigate = useNavigate();

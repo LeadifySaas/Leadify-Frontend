@@ -2,8 +2,8 @@ import { useState, useEffect } from 'react';
 import { useAuthStore } from '@/shared/store/auth.store';
 import { loginRequest } from '../api/auth.service';
 import { useNavigate } from '@tanstack/react-router';
-import { css } from '../../../../styled-system/css';
-import { stack, center, hstack } from '../../../../styled-system/patterns';
+import { css } from '@/styled-system/css';
+import { stack, center, hstack } from '@/styled-system/patterns';
 
 export function LoginPage() {
     const [email, setEmail] = useState('');

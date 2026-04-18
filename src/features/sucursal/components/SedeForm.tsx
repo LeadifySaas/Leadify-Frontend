@@ -6,8 +6,8 @@ import { Save, ArrowLeft, MapPin, Phone, User, Settings2, Globe } from 'lucide-r
 import { sedeSchema, type SedeFormValues } from "../schemas";
 import { useSedes } from "../hooks/useSedes";
 import { useClientes } from "../../cliente/hooks/useClientes";
-import { css } from '../../../../styled-system/css';
-import { stack, grid, hstack, center } from '../../../../styled-system/patterns';
+import { css } from '@/styled-system/css';
+import { stack, grid, hstack, center } from '@/styled-system/patterns';
 
 interface Props {
     mode: 'create' | 'edit';
