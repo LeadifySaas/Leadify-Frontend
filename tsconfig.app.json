@@ -11,8 +11,8 @@
     /* 👇 IMPORTANTE para alias */
     // "baseUrl": ".",
     "paths": {
-      "@/*": ["src/*"],
-      "@/styled-system/*": ["styled-system/*"]
+      "@/*": ["./src/*"],
+      "@/styled-system/*": ["./styled-system/*"]
     },
 
     /* Bundler mode */

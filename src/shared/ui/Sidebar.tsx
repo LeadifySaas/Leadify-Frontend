@@ -89,6 +89,7 @@ export function Sidebar() {
               { to: '/administracion/contactos', label: 'Contactos' },
               { to: '/administracion/clientes', label: 'Clientes' },
               { to: '/administracion/empresas', label: 'Empresas' },
+              {to: '/administracion/proveedores', label: 'Proveedores' },
               { to: '/administracion/roles', label: 'Roles y Permisos' }
             ]}
           />
