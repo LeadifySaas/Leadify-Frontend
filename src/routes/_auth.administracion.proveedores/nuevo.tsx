@@ -1,9 +1,8 @@
 import { createFileRoute } from '@tanstack/react-router';
 import { ProveedorForm } from '@/features/proveedores/components/ProveedorForm';
-
 import { css } from '../../../styled-system/css';
 
-export const Route = createFileRoute('/_auth/administracion/empresas/nuevo')({
+export const Route = createFileRoute('/_auth/administracion/proveedores/nuevo')({
     component: NuevoProveedorPage,
 });
 

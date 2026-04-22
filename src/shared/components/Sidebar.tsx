@@ -59,7 +59,8 @@ export function Sidebar() {
                         label="Documentación"
                         isCollapsed={isCollapsed}
                         links={[
-                            { to: '/documentacion/remitos', label: 'Remitos' }
+                            { to: '/documentacion/remitos', label: 'Remitos' },
+                          
                         ]}
                     />
 
@@ -73,9 +74,8 @@ export function Sidebar() {
                             { to: '/administracion/contactos', label: 'Contactos' },
                             { to: '/administracion/clientes', label: 'Clientes' },
                             { to: '/administracion/empresas', label: 'Empresas' },
-                            { to: '/administracion/roles', label: 'Roles y Permisos' },
-                            
-                            
+                            { to: '/administracion/proveedores', label: 'Proveedores' },
+                            { to: '/administracion/roles', label: 'Roles y Permisos' }   
                         ]}
                     />
                     {/* Administración Materiales */}
@@ -118,6 +118,7 @@ function NavItem({ to, icon, label, isCollapsed }: { to: string, icon: any, labe
 }
 
 function NavGroup({ icon, label, links, isCollapsed }: { icon: any, label: string, links: { to: string, label: string }[], isCollapsed: boolean }) {
+    console.log(`Links en ${label}:`, links);
     const [isOpen, setIsOpen] = useState(false);
 
     // Si el sidebar está colapsado, no mostramos el submenú abierto
