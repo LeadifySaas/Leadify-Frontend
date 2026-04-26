@@ -84,7 +84,8 @@ export function Sidebar() {
                         label="Materiales"
                         isCollapsed={isCollapsed}
                         links={[
-                            { to: '/materiales/articulos', label: 'Articulos' }
+                            { to: '/materiales/articulos', label: 'Articulos Fabricación' },
+                            { to: '/materiales/articulosInternos', label: 'Articulos Internos' }
                         ]}
                     />
 

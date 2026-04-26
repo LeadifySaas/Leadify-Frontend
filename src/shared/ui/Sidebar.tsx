@@ -98,7 +98,10 @@ export function Sidebar() {
             icon={<Box size={18} />}
             label="Materiales"
             isCollapsed={isCollapsed}
-            links={[{ to: '/materiales/articulos', label: 'Articulos' }]}
+            links={[
+              { to: '/materiales/articulos', label: 'Articulos Fabricación' },
+              { to: '/materiales/articulosInternos', label: 'Articulos Internos' }
+            ]}
           />
 
           <NavItem
