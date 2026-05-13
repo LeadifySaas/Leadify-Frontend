@@ -1,3 +1,4 @@
+import LineChartCustom from '@/shared/components/charts/SimpleAreaChart';
 import { css } from '../../../styled-system/css';
 import { stack, grid, hstack, center } from '../../../styled-system/patterns';
 import {
@@ -11,6 +12,10 @@ import {
   ListChecks,
   LineChart
 } from 'lucide-react';
+import Example from '@/shared/components/charts/SimpleAreaChart';
+import SimpleAreaChart from '@/shared/components/charts/SimpleAreaChart';
+import SimpleBarChart from '@/shared/components/charts/SimplePieChart';
+import SimplePieChart from '@/shared/components/charts/SimplePieChart';
 
 export default function HomePage() {
   const days = [
@@ -68,7 +73,6 @@ export default function HomePage() {
           VIVO
         </div>
       </div>
-
       {/* KPIs */}
       <div className={grid({ columns: { base: 1, md: 2, lg: 4 }, gap: '6' })}>
         <StatCard
@@ -100,7 +104,6 @@ export default function HomePage() {
           color="#805AD5"
         />
       </div>
-
       <div className={grid({ columns: { base: 1, lg: 12 }, gap: '6' })}>
         {/* Gráfico 1: Barras Corregido */}
         <div
@@ -262,7 +265,12 @@ export default function HomePage() {
             AUDITAR ACTIVIDAD COMPLETA
           </button>
         </div>
+
+        {/* CHARTS CUSTOMS */}
       </div>
+      <SimpleAreaChart />
+
+      <SimplePieChart />
     </div>
   );
 }
