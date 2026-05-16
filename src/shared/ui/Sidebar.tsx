@@ -12,9 +12,18 @@ import {
   ChevronLeft,
   Box
 } from 'lucide-react';
+import { useAuthStore } from '@/features/login/stores/authStore';
+
+const IconMap: Record<string, any> = {
+  LayoutDashboard: <LayoutDashboard size={18} />,
+  FileText: <FileText size={18} />,
+  ShieldCheck: <ShieldCheck size={18} />,
+  Box: <Box size={18} />,
+  Settings: <Settings size={18} />
+};
 
 export function Sidebar() {
-  // Estado para colapsar todo el sidebar
+  const { menuItems } = useAuthStore();
   const [isCollapsed, setIsCollapsed] = useState(false);
 
   return (
@@ -65,51 +74,34 @@ export function Sidebar() {
         </div>
 
         <nav className={stack({ gap: '2.5' })}>
-          <NavItem
-            to="/"
-            icon={<LayoutDashboard size={18} />}
-            label="Dashboard"
-            isCollapsed={isCollapsed}
-          />
+          {menuItems.map((item) => {
+            // Si TIENE submenúes
+            if (item.subMenues && item.subMenues.length > 0) {
+              return (
+                <NavGroup
+                  key={item.idMenu}
+                  icon={IconMap[item.icono] || <Box size={18} />}
+                  label={item.nombre}
+                  isCollapsed={isCollapsed}
+                  links={item.subMenues.map((sub: any) => ({
+                    to: sub.ruta,
+                    label: sub.nombre
+                  }))}
+                />
+              );
+            }
 
-          <NavGroup
-            icon={<FileText size={18} />}
-            label="Documentación"
-            isCollapsed={isCollapsed}
-            links={[{ to: '/documentacion/remitos', label: 'Remitos' }]}
-          />
-
-          {/* Administración con Usuarios y Roles */}
-          <NavGroup
-            icon={<ShieldCheck size={18} />}
-            label="Administración"
-            isCollapsed={isCollapsed}
-            links={[
-              { to: '/administracion/usuarios', label: 'Usuarios' },
-              { to: '/administracion/contactos', label: 'Contactos' },
-              { to: '/administracion/clientes', label: 'Clientes' },
-              { to: '/administracion/empresas', label: 'Empresas' },
-              {to: '/administracion/proveedores', label: 'Proveedores' },
-              { to: '/administracion/roles', label: 'Roles y Permisos' }
-            ]}
-          />
-          {/* Administración Materiales */}
-          <NavGroup
-            icon={<Box size={18} />}
-            label="Materiales"
-            isCollapsed={isCollapsed}
-            links={[
-              { to: '/materiales/articulos', label: 'Articulos Fabricación' },
-              { to: '/materiales/articulosInternos', label: 'Articulos Internos' }
-            ]}
-          />
-
-          <NavItem
-            to="/configuracion"
-            icon={<Settings size={18} />}
-            label="Configuración"
-            isCollapsed={isCollapsed}
-          />
+            // Si NO tiene submenúes
+            return (
+              <NavItem
+                key={item.idMenu}
+                to={item.ruta}
+                icon={IconMap[item.icono] || <Box size={18} />}
+                label={item.nombre}
+                isCollapsed={isCollapsed}
+              />
+            );
+          })}
         </nav>
       </div>
     </aside>
@@ -164,7 +156,6 @@ function NavGroup({
 }) {
   const [isOpen, setIsOpen] = useState(false);
 
-  // Si el sidebar está colapsado, no mostramos el submenú abierto
   const showMenu = isOpen && !isCollapsed;
 
   return (
@@ -215,7 +206,6 @@ function NavGroup({
               to={link.to as any}
               className={css({
                 p: '2',
-
                 pl: '4',
                 fontSize: 'xs',
                 color: 'gray.500',

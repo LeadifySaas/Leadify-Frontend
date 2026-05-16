@@ -11,15 +11,18 @@ import {
   ChevronRight,
   BadgeDollarSign
 } from 'lucide-react';
-import { useNavigate } from '@tanstack/react-router';
 import { useArticulos } from '../hooks/useArticulos';
 import { ConfirmDialog } from '../components/ConfirmDialog';
+import { usePermissions } from '@/shared/hooks/usePermissions';
+import { useNavigate } from '@tanstack/react-router';
 
 export default function ArticuloPage() {
   const navigate = useNavigate();
   const [search, setSearch] = useState('');
   const [page, setPage] = useState(1);
   const size = 25;
+
+  const { canCreate, canEdit, canDelete } = usePermissions();
 
   const { articulosQuery, deleteArticulo } = useArticulos(page, size, search);
   const { data, isLoading } = articulosQuery;
@@ -61,22 +64,24 @@ export default function ArticuloPage() {
           </div>
         </div>
 
-        <button
-          onClick={() => navigate({ to: '/materiales/articulos/nuevo' })}
-          className={hstack({
-            px: '5',
-            py: '2.5',
-            bgColor: 'blue.600',
-            color: 'white',
-            borderRadius: 'xl',
-            fontWeight: 'bold',
-            cursor: 'pointer',
-            _hover: { bgColor: 'blue.700' },
-            transition: 'all 0.2s'
-          })}
-        >
-          <Plus size={18} /> Nuevo Artículo
-        </button>
+        {canCreate && (
+          <button
+            onClick={() => navigate({ to: '/materiales/articulos/nuevo' })}
+            className={hstack({
+              px: '5',
+              py: '2.5',
+              bgColor: 'blue.600',
+              color: 'white',
+              borderRadius: 'xl',
+              fontWeight: 'bold',
+              cursor: 'pointer',
+              _hover: { bgColor: 'blue.700' },
+              transition: 'all 0.2s'
+            })}
+          >
+            <Plus size={18} /> Nuevo Artículo
+          </button>
+        )}
       </div>
 
       {/* Barra de Búsqueda */}
@@ -123,9 +128,11 @@ export default function ArticuloPage() {
               <th className={css(thStyle)}>Precio Venta</th>
               <th className={css(thStyle)}>Stock</th>
               <th className={css(thStyle)}>Estado</th>
-              <th className={css({ ...thStyle, textAlign: 'center' })}>
-                Acciones
-              </th>
+              {(canEdit || canDelete) && (
+                <th className={css({ ...thStyle, textAlign: 'center' })}>
+                  Acciones
+                </th>
+              )}
             </tr>
           </thead>
           <tbody>
@@ -224,44 +231,50 @@ export default function ArticuloPage() {
                       {articulo.activo ? 'Activo' : 'Inactivo'}
                     </span>
                   </td>
-                  <td className={`${tdStyle} ${css({ textAlign: 'center' })}`}>
-                    <div
-                      className={hstack({
-                        gap: '1',
-                        justifyContent: 'center'
-                      })}
-                    >
-                      <button
-                        className={actionBtnStyle}
-                        title="Editar"
-                        onClick={() =>
-                          navigate({
-                            to: '/materiales/articulos/$id',
-                            params: { id: articulo.id.toString() }
-                          })
-                        }
+                  {(canEdit || canDelete) && (
+                    <td className={`${tdStyle} ${css({ textAlign: 'center' })}`}>
+                      <div
+                        className={hstack({
+                          gap: '1',
+                          justifyContent: 'center'
+                        })}
                       >
-                        <Edit size={16} />
-                      </button>
-                      <ConfirmDialog
-                        title="¿Eliminar artículo?"
-                        description={`Estás por borrar "${articulo.nombre}". Esta acción no se puede deshacer.`}
-                        onConfirm={() => deleteArticulo(articulo.id)}
-                        confirmText="Sí, eliminar"
-                        trigger={
+                        {canEdit && (
                           <button
-                            className={css({
-                              color: 'red.500',
-                              cursor: 'pointer',
-                              p: '2'
-                            })}
+                            className={actionBtnStyle}
+                            title="Editar"
+                            onClick={() =>
+                              navigate({
+                                to: '/materiales/articulos/$id',
+                                params: { id: articulo.id.toString() }
+                              })
+                            }
                           >
-                            <Trash2 size={18} />
+                            <Edit size={16} />
                           </button>
-                        }
-                      />
-                    </div>
-                  </td>
+                        )}
+                        {canDelete && (
+                          <ConfirmDialog
+                            title="¿Eliminar artículo?"
+                            description={`Estás por borrar "${articulo.nombre}". Esta acción no se puede deshacer.`}
+                            onConfirm={() => deleteArticulo(articulo.id)}
+                            confirmText="Sí, eliminar"
+                            trigger={
+                              <button
+                                className={css({
+                                  color: 'red.500',
+                                  cursor: 'pointer',
+                                  p: '2'
+                                })}
+                              >
+                                <Trash2 size={18} />
+                              </button>
+                            }
+                          />
+                        )}
+                      </div>
+                    </td>
+                  )}
                 </tr>
               ))
             )}

@@ -15,12 +15,15 @@ import {
 } from 'lucide-react';
 import { useNavigate } from '@tanstack/react-router';
 import { useContactos } from '../hooks/useContacto';
+import { usePermissions } from '@/shared/hooks/usePermissions';
 
 export default function ContactoPage() {
   const navigate = useNavigate();
   const [search, setSearch] = useState('');
   const [page, setPage] = useState(1);
   const size = 25;
+
+  const { canCreate, canEdit, canDelete } = usePermissions();
 
   const { contactosQuery, deleteContacto } = useContactos(page, size, search);
   const { data, isLoading } = contactosQuery;
@@ -66,22 +69,24 @@ export default function ContactoPage() {
           </div>
         </div>
 
-        <button
-          onClick={() => navigate({ to: '/administracion/contactos/nuevo' })}
-          className={hstack({
-            px: '5',
-            py: '2.5',
-            bgColor: 'blue.600',
-            color: 'white',
-            borderRadius: 'xl',
-            fontWeight: 'bold',
-            cursor: 'pointer',
-            _hover: { bgColor: 'blue.700' },
-            transition: 'all 0.2s'
-          })}
-        >
-          <Plus size={18} /> Nuevo Contacto
-        </button>
+        {canCreate && (
+          <button
+            onClick={() => navigate({ to: '/administracion/contactos/nuevo' })}
+            className={hstack({
+              px: '5',
+              py: '2.5',
+              bgColor: 'blue.600',
+              color: 'white',
+              borderRadius: 'xl',
+              fontWeight: 'bold',
+              cursor: 'pointer',
+              _hover: { bgColor: 'blue.700' },
+              transition: 'all 0.2s'
+            })}
+          >
+            <Plus size={18} /> Nuevo Contacto
+          </button>
+        )}
       </div>
 
       {/* Buscador */}
@@ -130,9 +135,11 @@ export default function ContactoPage() {
                 <th className={css(thStyle)}>Email</th>
                 <th className={css(thStyle)}>Teléfono</th>
                 <th className={css(thStyle)}>Estado</th>
-                <th className={css({ ...thStyle, textAlign: 'center' })}>
-                  Acciones
-                </th>
+                {(canEdit || canDelete) && (
+                  <th className={css({ ...thStyle, textAlign: 'center' })}>
+                    Acciones
+                  </th>
+                )}
               </tr>
             </thead>
             <tbody>
@@ -232,33 +239,39 @@ export default function ContactoPage() {
                         {contacto.activo ? 'ACTIVO' : 'INACTIVO'}
                       </span>
                     </td>
-                    <td className={`${tdStyle} ${css({ textAlign: 'right' })}`}>
-                      <div
-                        className={hstack({
-                          gap: '1',
-                          justifyContent: 'center'
-                        })}
-                      >
-                        <button
-                          className={actionBtnStyle}
-                          title="Editar"
-                          onClick={() =>
-                            navigate({
-                              to: '/administracion/contactos/$id',
-                              params: { id: contacto.id.toString() }
-                            })
-                          }
+                    {(canEdit || canDelete) && (
+                      <td className={`${tdStyle} ${css({ textAlign: 'right' })}`}>
+                        <div
+                          className={hstack({
+                            gap: '1',
+                            justifyContent: 'center'
+                          })}
                         >
-                          <Edit size={16} />
-                        </button>
-                        <button
-                          className={`${actionBtnStyle} ${css({ color: 'red.400', _hover: { color: 'red.600', bgColor: 'red.50' } })}`}
-                          onClick={() => handleDelete(contacto.id)}
-                        >
-                          <Trash2 size={16} />
-                        </button>
-                      </div>
-                    </td>
+                          {canEdit && (
+                            <button
+                              className={actionBtnStyle}
+                              title="Editar"
+                              onClick={() =>
+                                navigate({
+                                  to: '/administracion/contactos/$id',
+                                  params: { id: contacto.id.toString() }
+                                })
+                              }
+                            >
+                              <Edit size={16} />
+                            </button>
+                          )}
+                          {canDelete && (
+                            <button
+                              className={`${actionBtnStyle} ${css({ color: 'red.400', _hover: { color: 'red.600', bgColor: 'red.50' } })}`}
+                              onClick={() => handleDelete(contacto.id)}
+                            >
+                              <Trash2 size={16} />
+                            </button>
+                          )}
+                        </div>
+                      </td>
+                    )}
                   </tr>
                 ))
               )}
