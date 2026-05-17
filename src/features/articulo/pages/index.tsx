@@ -311,12 +311,24 @@ export default function ArticuloPage() {
                 textAlign: 'left'
               })}
             >
-              <th className={css(thStyle)}>Código</th>
-              <th className={css(thStyle)}>Nombre / Descripción</th>
-              <th className={css(thStyle)}>Precio Venta</th>
-              <th className={css(thStyle)}>Stock</th>
-              <th className={css(thStyle)}>Estado</th>
-              {(canEdit || canDelete) && (
+              {/* Aquí se agregaron las validaciones isColVisible y el th de Imagen */}
+              {isColVisible('imagen') && (
+                <th className={css(thStyle)}>Imagen</th>
+              )}
+              {isColVisible('codigo') && (
+                <th className={css(thStyle)}>Código</th>
+              )}
+              {isColVisible('nombre') && (
+                <th className={css(thStyle)}>Nombre / Descripción</th>
+              )}
+              {isColVisible('precio') && (
+                <th className={css(thStyle)}>Precio Venta</th>
+              )}
+              {isColVisible('stock') && <th className={css(thStyle)}>Stock</th>}
+              {isColVisible('estado') && (
+                <th className={css(thStyle)}>Estado</th>
+              )}
+              {isColVisible('acciones') && (canEdit || canDelete) && (
                 <th className={css({ ...thStyle, textAlign: 'center' })}>
                   Acciones
                 </th>
@@ -461,15 +473,11 @@ export default function ArticuloPage() {
                     </td>
                   )}
 
-                  {isColVisible('acciones') && (
+                  {/* Aquí se unificó la lógica de "acciones" y botones de edición/borrado */}
+                  {isColVisible('acciones') && (canEdit || canDelete) && (
                     <td
                       className={`${tdStyle} ${css({ textAlign: 'center' })}`}
                     >
-                      {articulo.activo ? 'Activo' : 'Inactivo'}
-                    </span>
-                  </td>
-                  {(canEdit || canDelete) && (
-                    <td className={`${tdStyle} ${css({ textAlign: 'center' })}`}>
                       <div
                         className={hstack({
                           gap: '1',
