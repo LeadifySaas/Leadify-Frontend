@@ -9,13 +9,12 @@ import { useArticulos } from '@/features/articulo/hooks/useArticulos';
 interface UseArticuloFormProps {
     mode: 'create' | 'edit';
     initialData?: any;
-    onSuccess?: () => void; // <-- Recibimos el callback
+    onSuccess?: () => void;
 }
 
 export function useArticuloForm({ mode, initialData, onSuccess }: UseArticuloFormProps) {
     const navigate = useNavigate();
     const [preview, setPreview] = useState<string | null>(null);
-    const [archivoId, setArchivoId] = useState<number | null>(null);
     const [markImageForDeletion, setMarkImageForDeletion] = useState(false);
 
     const { createArticulo, updateArticulo, isCreating, isUpdating } = useArticulos();
@@ -33,7 +32,7 @@ export function useArticuloForm({ mode, initialData, onSuccess }: UseArticuloFor
 
     const imageFile = form.watch('imagen' as any);
 
-    // Preview de imagen local
+    // Preview de imagen local (cuando el usuario selecciona una nueva)
     useEffect(() => {
         if (imageFile && imageFile[0] instanceof File) {
             const objectUrl = URL.createObjectURL(imageFile[0]);
@@ -43,34 +42,23 @@ export function useArticuloForm({ mode, initialData, onSuccess }: UseArticuloFor
         }
     }, [imageFile]);
 
-    // Cargar datos e imagen inicial
+    // Cargar datos iniciales. Ya no necesitamos hacer un fetch de la imagen, 
+    // solo usamos la propiedad url estática que viene del backend.
     useEffect(() => {
         if (initialData) {
             form.reset(initialData);
-            const loadImagen = async () => {
-                if (mode === 'edit' && initialData.id) {
-                    try {
-                        const response = await api.get(`/images/articulos/${initialData.id}`);
-                        const imagenes = Array.isArray(response.data) ? response.data : [];
-                        if (imagenes.length > 0) {
-                            const imagen = imagenes[0];
-                            setArchivoId(imagen.id);
-                            const baseURL = api.defaults.baseURL?.replace(/\/$/, '') || '';
-                            setPreview(`${baseURL}/images/descargar/${imagen.id}`);
-                        }
-                    } catch (error) {
-                        console.error('Error al cargar la imagen:', error);
-                    }
-                }
-            };
-            loadImagen();
+            if (mode === 'edit' && initialData.imagenUrl) {
+                const baseURL = api.defaults.baseURL?.replace(/\/api$/, '') || '';
+                // Construimos la URL estática (ej: http://localhost:5000/adjuntos/articulos/123.jpg)
+                setPreview(`${baseURL}${initialData.imagenUrl}`);
+            }
         }
     }, [initialData, form, mode]);
 
     const handleDeleteImage = () => {
         setPreview(null);
         form.setValue('imagen' as any, null);
-        if (archivoId) {
+        if (initialData?.imagenUrl) {
             setMarkImageForDeletion(true);
         }
     };
@@ -79,7 +67,7 @@ export function useArticuloForm({ mode, initialData, onSuccess }: UseArticuloFor
         try {
             let currentId = initialData?.id;
 
-            // 1. Guardar o Editar
+            // 1. Guardar o Editar los datos de texto (JSON)
             if (mode === 'create') {
                 const result = await createArticulo(data);
                 currentId = (result as any).id || (result as any).data?.id;
@@ -88,29 +76,26 @@ export function useArticuloForm({ mode, initialData, onSuccess }: UseArticuloFor
             }
 
             // 2. Limpieza de imagen si se marcó para borrar
-            if (markImageForDeletion && archivoId) {
-                await api.delete(`/images/${archivoId}`);
+            if (markImageForDeletion && currentId) {
+                await api.delete(`/articulos/${currentId}/imagen`);
             }
 
-            // 3. Subir imagen nueva
+            // 3. Subir imagen nueva (si hay una seleccionada en el input file)
             const archivoImagen = data.imagen;
             if (currentId && archivoImagen && archivoImagen.length > 0) {
                 const file = archivoImagen[0];
                 if (file instanceof File) {
                     const formData = new FormData();
                     formData.append('file', file);
-                    await api.post(`/images/articulos/${currentId}`, formData, {
+                    await api.post(`/articulos/${currentId}/imagen`, formData, {
                         headers: { 'Content-Type': 'multipart/form-data' }
                     });
                 }
             }
 
-            // LOGICA DE RETORNO:
             if (onSuccess) {
-                // Si estamos en un modal, ejecutamos el callback (cerrar modal, refresh, etc)
                 onSuccess();
             } else {
-                // Si no hay callback, asumimos que es la página completa y navegamos
                 navigate({ to: '/materiales/articulos' });
             }
 

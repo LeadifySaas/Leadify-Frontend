@@ -13,7 +13,7 @@ export const articuloSchema = z.object({
 
 export type ArticuloFormValues = z.infer<typeof articuloSchema>;
 
-export interface Articulo extends Omit<ArticuloFormValues, 'imagen'> {
-    id: number;
-    imagenUrl?: string; // Para mostrar la foto que viene del server
-}
+// export interface Articulo extends Omit<ArticuloFormValues, 'imagen'> {
+//     id: number;
+//     imagenUrl?: string; // Para mostrar la foto que viene del server
+// }

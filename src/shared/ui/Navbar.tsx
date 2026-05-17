@@ -12,7 +12,7 @@ export function Navbar() {
   const navigate = useNavigate();
 
   // Si no hay nombre en el store, usamos un fallback
-  const displayName = user?.unique_name || user?.email || 'Usuario';
+  const displayName = user?.email || 'Usuario';
   const initial = displayName.charAt(0).toUpperCase();
 
   const handleLogout = () => {

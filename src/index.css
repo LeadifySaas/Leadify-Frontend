@@ -12,8 +12,10 @@
 
 @layer base {
   @font-face {
-    font-family: 'Inter';
-    src: url('/fonts/InterVariable.woff2') format('woff2');
+    font-family: 'GeistVariable';
+    /* src: url('/fonts/InterVariable.woff2') format('woff2'); */
+    src: url('/fonts/GeistVariable.ttf') format('ttf');
+
     font-weight: 100 900;
     font-display: swap;
     font-style: normal;
@@ -30,7 +32,7 @@
     padding: 0;
     min-height: 100vh;
 
-    font-family: 'Inter', system-ui, sans-serif;
+    font-family: 'GeistVariable', system-ui, sans-serif;
     font-size: 1rem;
     line-height: inherit;
 

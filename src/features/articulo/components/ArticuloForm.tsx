@@ -20,11 +20,8 @@ interface Props {
 }
 
 export function ArticuloForm({ mode, initialData, isModal, onSuccess }: Props) {
-  // ATENCIÓN: Asegurate de que `useArticuloForm` soporte ejecutar `onSuccess`
-  // una vez que la API responde 200, en lugar de forzar un navigate().
   const { form, preview, handleDeleteImage, onSubmit, isSaving, navigate } =
     useArticuloForm({ mode, initialData, onSuccess });
-
   const {
     register,
     formState: { errors }

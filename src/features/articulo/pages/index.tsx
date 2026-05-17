@@ -16,8 +16,8 @@ import { useNavigate } from '@tanstack/react-router';
 import { useArticulos } from '../hooks/useArticulos';
 import { ConfirmDialog } from '../components/ConfirmDialog';
 import { ArticuloForm } from '../components/ArticuloForm';
-import type { Articulo } from '../schemas';
-
+import type { Articulo } from '../types';
+import { environment } from '@/environments/environment';
 export default function ArticuloPage() {
   const navigate = useNavigate();
   const [search, setSearch] = useState('');
@@ -28,9 +28,15 @@ export default function ArticuloPage() {
   const { data, isLoading } = articulosQuery;
 
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [selectedArticulo, setSelectedArticulo] = useState<any>(null);
+  const [selectedArticulo, setSelectedArticulo] = useState<Articulo | null>(
+    null
+  );
   const [formMode, setFormMode] = useState<'create' | 'edit'>('create');
-  const handleRowClick = (event: any, articulo?: Articulo) => {
+
+  const handleRowClick = (
+    event: React.MouseEvent<HTMLTableRowElement>,
+    articulo?: Articulo
+  ) => {
     const isMobileOrTablet = window.innerWidth <= 1024;
 
     if (isMobileOrTablet) {
@@ -330,9 +336,10 @@ export default function ArticuloPage() {
                 </td>
               </tr>
             ) : (
-              data?.items?.map((articulo: any) => (
+              data?.items?.map((articulo: Articulo) => (
                 <tr
                   key={articulo.id}
+                  onClick={(e) => handleRowClick(e, articulo)}
                   className={css({
                     borderBottom: '1px solid',
                     borderBottomColor: 'gray.200',
@@ -344,14 +351,13 @@ export default function ArticuloPage() {
                   })}
                 >
                   {isColVisible('imagen') && (
-                    <td
-                      className={tdStyle}
-                      onClick={() => handleRowClick(articulo)}
-                    >
+                    <td className={tdStyle}>
                       <img
                         src={
-                          articulo.imagenUrl ||
-                          'https://placehold.co/40x40?text=Img'
+                          articulo.imagenUrl
+                            ? environment.backend_files_baseUrl +
+                              articulo.imagenUrl
+                            : 'https://placehold.co/40x40?text=Img'
                         }
                         alt={articulo.nombre}
                         className={css({
@@ -368,10 +374,7 @@ export default function ArticuloPage() {
                   )}
 
                   {isColVisible('codigo') && (
-                    <td
-                      className={tdStyle}
-                      onClick={() => handleRowClick(articulo)}
-                    >
+                    <td className={tdStyle}>
                       <code
                         className={css({
                           fontSize: 'xs',
@@ -389,10 +392,7 @@ export default function ArticuloPage() {
                   )}
 
                   {isColVisible('nombre') && (
-                    <td
-                      className={tdStyle}
-                      onClick={() => handleRowClick(articulo)}
-                    >
+                    <td className={tdStyle}>
                       <div className={stack({ gap: '0' })}>
                         <span
                           className={css({
@@ -412,10 +412,7 @@ export default function ArticuloPage() {
                   )}
 
                   {isColVisible('precio') && (
-                    <td
-                      className={tdStyle}
-                      onClick={() => handleRowClick(articulo)}
-                    >
+                    <td className={tdStyle}>
                       <span
                         className={css({
                           fontWeight: '600',
@@ -428,10 +425,7 @@ export default function ArticuloPage() {
                   )}
 
                   {isColVisible('stock') && (
-                    <td
-                      className={tdStyle}
-                      onClick={() => handleRowClick(articulo)}
-                    >
+                    <td className={tdStyle}>
                       <span
                         className={css({
                           fontWeight: 'bold',
@@ -453,10 +447,7 @@ export default function ArticuloPage() {
                   )}
 
                   {isColVisible('estado') && (
-                    <td
-                      className={tdStyle}
-                      onClick={() => handleRowClick(articulo)}
-                    >
+                    <td className={tdStyle}>
                       <span
                         className={css({
                           padding: '4px 8px',
@@ -478,7 +469,6 @@ export default function ArticuloPage() {
                   {isColVisible('acciones') && (
                     <td
                       className={`${tdStyle} ${css({ textAlign: 'center' })}`}
-                      onClick={() => handleRowClick(articulo)}
                     >
                       <div
                         className={hstack({
