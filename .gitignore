@@ -26,4 +26,6 @@ dist-ssr
 ## Panda
 styled-system
 styled-system-studio
+.tanstack/tmp/
+
 tsconfig.app.json

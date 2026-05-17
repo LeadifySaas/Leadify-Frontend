@@ -2,8 +2,12 @@ import { createFileRoute } from '@tanstack/react-router'
 import { SedeForm } from '@/features/sucursal/components/SedeForm'
 import { useSedes } from '@/features/sucursal/hooks/useSedes'
 import { css } from '../../../styled-system/css'
+import { checkActionPermission } from '@/shared/lib/authUtils'
 
 export const Route = createFileRoute('/_auth/administracion/sucursales/$id')({
+  beforeLoad: ({ context, location }) => {
+    checkActionPermission(context.auth, location.pathname, 'editar')
+  },
   component: EditSedePage,
 })
 

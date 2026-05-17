@@ -13,16 +13,17 @@ export const UsuarioSchema = z.object({
         .email("Email inválido")
         .min(1, "El email es obligatorio"),
 
-    // Validamos que el rol sea un número (el ID del rol)
-    rolId: z.coerce.number().min(1, "Seleccione un rol válido"),
-    // Contraseña: mínima de 6 caracteres. 
-    // .optional() permite que en la edición no tire error si viene vacío
-    password: z.string()
-        .min(8, "La contraseña debe tener al menos 8 caracteres")
-        .regex(/[A-Z]/, "Debe contener al menos una letra mayúscula")
-        .regex(/[0-9]/, "Debe contener al menos un número"),
+    perfilId: z.number().min(1, "Seleccione un rol válido"),
 
-    activo: z.boolean().default(true),
+    // Contraseña opcional: se valida solo si tiene contenido
+    password: z.string()
+        .optional()
+        .refine(
+            (val) => !val || (val.length >= 8 && /[A-Z]/.test(val) && /[0-9]/.test(val)),
+            { message: "Debe tener al menos 8 caracteres, una mayúscula y un número" }
+        ),
+
+    activo: z.boolean(),
     telefono: z.string().optional().nullable(),
     areaSector: z.string().optional().nullable(),
     observaciones: z.string().optional().nullable(),
@@ -30,3 +31,4 @@ export const UsuarioSchema = z.object({
 });
 
 export type UsuarioFormValues = z.infer<typeof UsuarioSchema>;
+

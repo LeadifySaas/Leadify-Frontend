@@ -3,15 +3,15 @@ export interface Usuario {
     nombre: string;
     apellido: string;
     email: string;
-    nombreRol: string; 
+    nombrePerfil: string;
     activo: boolean;
-    telefono?: string;
-    fotoPerfil?: string;
-    areaSector?: string;
-    observaciones?: string;
+    telefono?: string | null;
+    fotoPerfil?: string | null;
+    areaSector?: string | null;
+    observaciones?: string | null;
 }
 
-export interface UsuarioDto extends Omit<Usuario, 'id'> {
+export interface UsuarioDto extends Omit<Usuario, 'id' | 'nombrePerfil'> {
     password?: string;
-    rolId?: number;
-}
+    perfilId: number;
+}

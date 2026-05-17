@@ -1,6 +1,6 @@
 import { useState } from 'react';
-import { css } from '../../../../styled-system/css';
-import { stack, hstack, center } from '../../../../styled-system/patterns';
+import { css } from '@/styled-system/css';
+import { stack, hstack, center } from '@/styled-system/patterns';
 import {
   Search,
   Plus,
@@ -18,12 +18,15 @@ import { useRemitos } from '../hooks/useRemitos';
 import { remitoApi } from '../api'; // Asegúrate de importar tu API
 import { ConfirmDialog } from '../../../shared/components/ui/ConfirmDialog';
 import { StatusModal } from '../components/StatusModal';
+import { usePermissions } from '@/shared/hooks/usePermissions';
 
 export default function RemitosPage() {
   const navigate = useNavigate();
   const [search, setSearch] = useState('');
   const [page, setPage] = useState(1);
   const size = 25;
+
+  const { canCreate, canEdit, canDelete } = usePermissions();
 
   const { remitos, totalCount, isLoading, deleteRemito, updateStatus } =
     useRemitos(page, size, search);
@@ -112,12 +115,14 @@ export default function RemitosPage() {
           </button>
 
           {/* BOTÓN NUEVO */}
-          <button
-            onClick={() => navigate({ to: '/documentacion/remitos/nuevo' })}
-            className={btnPrimaryStyle}
-          >
-            <Plus size={18} /> Nuevo Remito
-          </button>
+          {canCreate && (
+            <button
+              onClick={() => navigate({ to: '/documentacion/remitos/nuevo' })}
+              className={btnPrimaryStyle}
+            >
+              <Plus size={18} /> Nuevo Remito
+            </button>
+          )}
         </div>
       </div>
 
@@ -247,48 +252,54 @@ export default function RemitosPage() {
                         <FileDown size={16} />
                       </button>
 
-                      <button
-                        className={actionBtnStyle}
-                        title="Cambiar Estado"
-                        onClick={() =>
-                          setStatusModal({ isOpen: true, remito: r })
-                        }
-                      >
-                        <RefreshCw size={16} />
-                      </button>
-
-                      <button
-                        className={actionBtnStyle}
-                        title="Editar"
-                        onClick={() =>
-                          navigate({
-                            to: '/documentacion/remitos/$id',
-                            params: { id: r.id.toString() }
-                          })
-                        }
-                      >
-                        <Edit size={16} />
-                      </button>
-
-                      <ConfirmDialog
-                        title="¿Anular Remito?"
-                        description={`Estás por anular el remito "${r.numeroRemito}". Esta acción no se puede deshacer.`}
-                        onConfirm={() => deleteRemito(r.id)}
-                        confirmText="Sí, anular"
-                        trigger={
+                      {canEdit && (
+                        <>
                           <button
-                            className={css({
-                              color: 'red.400',
-                              cursor: 'pointer',
-                              p: '2',
-                              borderRadius: 'lg',
-                              _hover: { color: 'red.600', bgColor: 'red.50' }
-                            })}
+                            className={actionBtnStyle}
+                            title="Cambiar Estado"
+                            onClick={() =>
+                              setStatusModal({ isOpen: true, remito: r })
+                            }
                           >
-                            <Trash2 size={18} />
+                            <RefreshCw size={16} />
                           </button>
-                        }
-                      />
+
+                          <button
+                            className={actionBtnStyle}
+                            title="Editar"
+                            onClick={() =>
+                              navigate({
+                                to: '/documentacion/remitos/$id',
+                                params: { id: r.id.toString() }
+                              })
+                            }
+                          >
+                            <Edit size={16} />
+                          </button>
+                        </>
+                      )}
+
+                      {canDelete && (
+                        <ConfirmDialog
+                          title="¿Anular Remito?"
+                          description={`Estás por anular el remito "${r.numeroRemito}". Esta acción no se puede deshacer.`}
+                          onConfirm={() => deleteRemito(r.id)}
+                          confirmText="Sí, anular"
+                          trigger={
+                            <button
+                              className={css({
+                                color: 'red.400',
+                                cursor: 'pointer',
+                                p: '2',
+                                borderRadius: 'lg',
+                                _hover: { color: 'red.600', bgColor: 'red.50' }
+                              })}
+                            >
+                              <Trash2 size={18} />
+                            </button>
+                          }
+                        />
+                      )}
                     </div>
                   </td>
                 </tr>

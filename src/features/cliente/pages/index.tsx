@@ -12,12 +12,15 @@ import {
 } from 'lucide-react';
 import { useNavigate } from '@tanstack/react-router';
 import { useClientes } from '../hooks/useClientes';
+import { usePermissions } from '@/shared/hooks/usePermissions';
 
 export default function ClientePage() {
   const navigate = useNavigate();
   const [search, setSearch] = useState('');
   const [page, setPage] = useState(1);
   const size = 25;
+
+  const { canCreate, canEdit, canDelete } = usePermissions();
 
   const { clientesQuery, deleteCliente } = useClientes(page, size, search);
   const { data, isLoading } = clientesQuery;
@@ -63,22 +66,24 @@ export default function ClientePage() {
           </div>
         </div>
 
-        <button
-          onClick={() => navigate({ to: '/administracion/clientes/nuevo' })}
-          className={hstack({
-            px: '5',
-            py: '2.5',
-            bgColor: 'blue.600',
-            color: 'white',
-            borderRadius: 'xl',
-            fontWeight: 'bold',
-            cursor: 'pointer',
-            _hover: { bgColor: 'blue.700' },
-            transition: 'all 0.2s'
-          })}
-        >
-          <Plus size={18} /> Nuevo Cliente
-        </button>
+        {canCreate && (
+          <button
+            onClick={() => navigate({ to: '/administracion/clientes/nuevo' })}
+            className={hstack({
+              px: '5',
+              py: '2.5',
+              bgColor: 'blue.600',
+              color: 'white',
+              borderRadius: 'xl',
+              fontWeight: 'bold',
+              cursor: 'pointer',
+              _hover: { bgColor: 'blue.700' },
+              transition: 'all 0.2s'
+            })}
+          >
+            <Plus size={18} /> Nuevo Cliente
+          </button>
+        )}
       </div>
 
       {/* Buscador */}
@@ -129,9 +134,11 @@ export default function ClientePage() {
                 <th className={css(thStyle)}>Límite Crédito</th>
                 <th className={css(thStyle)}>Localidad</th>
                 <th className={css(thStyle)}>Estado</th>
-                <th className={css({ ...thStyle, textAlign: 'center' })}>
-                  Acciones
-                </th>
+                {(canEdit || canDelete) && (
+                  <th className={css({ ...thStyle, textAlign: 'center' })}>
+                    Acciones
+                  </th>
+                )}
               </tr>
             </thead>
             <tbody>
@@ -221,34 +228,40 @@ export default function ClientePage() {
                         {cliente.activo ? 'Activo' : 'Inactivo'}
                       </span>
                     </td>
-                    <td className={`${tdStyle} ${css({ textAlign: 'right' })}`}>
-                      <div
-                        className={hstack({
-                          gap: '1',
-                          justifyContent: 'center'
-                        })}
-                      >
-                        <button
-                          className={actionBtnStyle}
-                          title="Editar"
-                          onClick={() =>
-                            navigate({
-                              to: '/administracion/clientes/$id',
-                              params: { id: cliente.id.toString() }
-                            })
-                          }
+                    {(canEdit || canDelete) && (
+                      <td className={`${tdStyle} ${css({ textAlign: 'right' })}`}>
+                        <div
+                          className={hstack({
+                            gap: '1',
+                            justifyContent: 'center'
+                          })}
                         >
-                          <Edit size={16} />
-                        </button>
-                        <button
-                          className={`${actionBtnStyle} ${css({ color: 'red.400', _hover: { color: 'red.600', bgColor: 'red.50' } })}`}
-                          title="Dar de baja"
-                          onClick={() => handleDelete(cliente.id)}
-                        >
-                          <Trash2 size={16} />
-                        </button>
-                      </div>
-                    </td>
+                          {canEdit && (
+                            <button
+                              className={actionBtnStyle}
+                              title="Editar"
+                              onClick={() =>
+                                navigate({
+                                  to: '/administracion/clientes/$id',
+                                  params: { id: cliente.id.toString() }
+                                })
+                              }
+                            >
+                              <Edit size={16} />
+                            </button>
+                          )}
+                          {canDelete && (
+                            <button
+                              className={`${actionBtnStyle} ${css({ color: 'red.400', _hover: { color: 'red.600', bgColor: 'red.50' } })}`}
+                              title="Dar de baja"
+                              onClick={() => handleDelete(cliente.id)}
+                            >
+                              <Trash2 size={16} />
+                            </button>
+                          )}
+                        </div>
+                      </td>
+                    )}
                   </tr>
                 ))
               )}
