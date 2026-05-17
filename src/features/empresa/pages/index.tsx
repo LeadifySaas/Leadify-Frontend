@@ -12,12 +12,15 @@ import {
 } from 'lucide-react';
 import { useNavigate } from '@tanstack/react-router';
 import { useEmpresas } from '../hooks/useEmpresas';
+import { usePermissions } from '@/shared/hooks/usePermissions';
 
 export default function EmpresaPage() {
   const navigate = useNavigate();
   const [search, setSearch] = useState('');
   const [page, setPage] = useState(1);
   const size = 25;
+
+  const { canCreate, canEdit, canDelete } = usePermissions();
 
   const { empresasQuery, deleteEmpresa } = useEmpresas(page, size, search);
   const { data, isLoading } = empresasQuery;
@@ -63,22 +66,24 @@ export default function EmpresaPage() {
           </div>
         </div>
 
-        <button
-          onClick={() => navigate({ to: '/administracion/empresas/nuevo' })}
-          className={hstack({
-            px: '5',
-            py: '2.5',
-            bgColor: 'blue.600',
-            color: 'white',
-            borderRadius: 'xl',
-            fontWeight: 'bold',
-            cursor: 'pointer',
-            _hover: { bgColor: 'blue.700' },
-            transition: 'all 0.2s'
-          })}
-        >
-          <Plus size={18} /> Nueva Empresa
-        </button>
+        {canCreate && (
+          <button
+            onClick={() => navigate({ to: '/administracion/empresas/nuevo' })}
+            className={hstack({
+              px: '5',
+              py: '2.5',
+              bgColor: 'blue.600',
+              color: 'white',
+              borderRadius: 'xl',
+              fontWeight: 'bold',
+              cursor: 'pointer',
+              _hover: { bgColor: 'blue.700' },
+              transition: 'all 0.2s'
+            })}
+          >
+            <Plus size={18} /> Nueva Empresa
+          </button>
+        )}
       </div>
 
       {/* Buscador */}
@@ -127,7 +132,9 @@ export default function EmpresaPage() {
                 <th className={css(thStyle)}>Dirección Fiscal</th>
                 <th className={css(thStyle)}>Condición IVA</th>
                 <th className={css(thStyle)}>Estado</th>
-                <th className={css({ ...thStyle })}>Acciones</th>
+                {(canEdit || canDelete) && (
+                  <th className={css({ ...thStyle, textAlign: 'center' })}>Acciones</th>
+                )}
               </tr>
             </thead>
             <tbody>
@@ -203,34 +210,40 @@ export default function EmpresaPage() {
                         {empresa.activo ? 'Activo' : 'Inactivo'}
                       </span>
                     </td>
-                    <td className={`${tdStyle} ${css({ textAlign: 'right' })}`}>
-                      <div
-                        className={hstack({
-                          gap: '1',
-                          justifyContent: 'center'
-                        })}
-                      >
-                        <button
-                          className={actionBtnStyle}
-                          title="Editar"
-                          onClick={() =>
-                            navigate({
-                              to: '/administracion/empresas/$id',
-                              params: { id: empresa.id.toString() }
-                            })
-                          }
+                    {(canEdit || canDelete) && (
+                      <td className={`${tdStyle} ${css({ textAlign: 'right' })}`}>
+                        <div
+                          className={hstack({
+                            gap: '1',
+                            justifyContent: 'center'
+                          })}
                         >
-                          <Edit size={16} />
-                        </button>
-                        <button
-                          className={`${actionBtnStyle} ${css({ color: 'red.400', _hover: { color: 'red.600', bgColor: 'red.50' } })}`}
-                          title="Eliminar"
-                          onClick={() => handleDelete(empresa.id)}
-                        >
-                          <Trash2 size={16} />
-                        </button>
-                      </div>
-                    </td>
+                          {canEdit && (
+                            <button
+                              className={actionBtnStyle}
+                              title="Editar"
+                              onClick={() =>
+                                navigate({
+                                  to: '/administracion/empresas/$id',
+                                  params: { id: empresa.id.toString() }
+                                })
+                              }
+                            >
+                              <Edit size={16} />
+                            </button>
+                          )}
+                          {canDelete && (
+                            <button
+                              className={`${actionBtnStyle} ${css({ color: 'red.400', _hover: { color: 'red.600', bgColor: 'red.50' } })}`}
+                              title="Eliminar"
+                              onClick={() => handleDelete(empresa.id)}
+                            >
+                              <Trash2 size={16} />
+                            </button>
+                          )}
+                        </div>
+                      </td>
+                    )}
                   </tr>
                 ))
               )}

@@ -2,8 +2,12 @@ import { createFileRoute } from '@tanstack/react-router'
 import { UsuarioForm } from '@/features/usuario/components/UsuarioForm'
 import { useUsuarios } from '@/features/usuario/hooks/useUsuario' // Tu hook de usuarios
 import { css } from '../../../styled-system/css'
+import { checkActionPermission } from '@/shared/lib/authUtils'
 
 export const Route = createFileRoute('/_auth/administracion/usuarios/$id')({
+  beforeLoad: ({ context, location }) => {
+    checkActionPermission(context.auth, location.pathname, 'editar')
+  },
   component: EditUsuarioPage,
 })
 

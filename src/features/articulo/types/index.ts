@@ -7,6 +7,7 @@ export interface Articulo {
     precioVenta: number;
     stockActual: number;
     activo: boolean;
+    imagenUrl?: string;
 }
 
 export interface ArticuloDto extends Omit<Articulo, 'id'> { }

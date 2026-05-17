@@ -5,12 +5,15 @@ import { Search, Plus, Edit, Trash2, Building2, ChevronLeft, ChevronRight, MapPi
 import { useNavigate } from "@tanstack/react-router";
 import { useSedes } from "../hooks/useSedes";
 import { ConfirmDialog } from "../components/ConfirmDialog";
+import { usePermissions } from "@/shared/hooks/usePermissions";
 
 export default function SucursalesPage() {
   const navigate = useNavigate();
   const [search, setSearch] = useState('');
   const [page, setPage] = useState(1);
   const size = 25;
+
+  const { canCreate, canEdit, canDelete } = usePermissions();
 
   const { sedesQuery, deleteSede } = useSedes(page, size, search);
   const { data, isLoading } = sedesQuery;
@@ -55,22 +58,24 @@ export default function SucursalesPage() {
           </div>
         </div>
 
-        <button
-          onClick={() => navigate({ to: '/administracion/sucursales/nuevo' })}
-          className={hstack({
-            px: '5',
-            py: '2.5',
-            bgColor: 'blue.600',
-            color: 'white',
-            borderRadius: 'xl',
-            fontWeight: 'bold',
-            cursor: 'pointer',
-            _hover: { bgColor: 'blue.700' },
-            transition: 'all 0.2s'
-          })}
-        >
-          <Plus size={18} /> Nueva Sede
-        </button>
+        {canCreate && (
+          <button
+            onClick={() => navigate({ to: '/administracion/sucursales/nuevo' })}
+            className={hstack({
+              px: '5',
+              py: '2.5',
+              bgColor: 'blue.600',
+              color: 'white',
+              borderRadius: 'xl',
+              fontWeight: 'bold',
+              cursor: 'pointer',
+              _hover: { bgColor: 'blue.700' },
+              transition: 'all 0.2s'
+            })}
+          >
+            <Plus size={18} /> Nueva Sede
+          </button>
+        )}
       </div>
 
       {/* Barra de Búsqueda */}
@@ -111,9 +116,11 @@ export default function SucursalesPage() {
               <th className={css(thStyle)}>Ubicación</th>
               <th className={css(thStyle)}>Contacto</th>
               <th className={css(thStyle)}>Estado</th>
-              <th className={css({ ...thStyle, textAlign: 'right' })}>
-                Acciones
-              </th>
+              {(canEdit || canDelete) && (
+                <th className={css({ ...thStyle, textAlign: 'right' })}>
+                  Acciones
+                </th>
+              )}
             </tr>
           </thead>
           <tbody>
@@ -212,46 +219,52 @@ export default function SucursalesPage() {
                       {sede.activo ? 'Activo' : 'Inactivo'}
                     </span>
                   </td>
-                  <td className={`${tdStyle} ${css({ textAlign: 'right' })}`}>
-                    <div
-                      className={hstack({
-                        gap: '1',
-                        justifyContent: 'flex-end'
-                      })}
-                    >
-                      <button
-                        className={actionBtnStyle}
-                        title="Editar"
-                        onClick={() =>
-                          navigate({
-                            to: '/administracion/sucursales/$id',
-                            params: { id: sede.id.toString() }
-                          })
-                        }
+                  {(canEdit || canDelete) && (
+                    <td className={`${tdStyle} ${css({ textAlign: 'right' })}`}>
+                      <div
+                        className={hstack({
+                          gap: '1',
+                          justifyContent: 'flex-end'
+                        })}
                       >
-                        <Edit size={16} />
-                      </button>
-                      <ConfirmDialog
-                        title="¿Eliminar Sede?"
-                        description={`Estás por borrar "${sede.nombre}". Esta acción no se puede deshacer.`}
-                        onConfirm={() => handleDelete(sede.id)}
-                        confirmText="Sí, eliminar"
-                        trigger={
+                        {canEdit && (
                           <button
-                            className={css({
-                              color: 'red.500',
-                              cursor: 'pointer',
-                              p: '2',
-                              borderRadius: 'lg',
-                              _hover: { bgColor: 'red.50' }
-                            })}
+                            className={actionBtnStyle}
+                            title="Editar"
+                            onClick={() =>
+                              navigate({
+                                to: '/administracion/sucursales/$id',
+                                params: { id: sede.id.toString() }
+                              })
+                            }
                           >
-                            <Trash2 size={18} />
+                            <Edit size={16} />
                           </button>
-                        }
-                      />
-                    </div>
-                  </td>
+                        )}
+                        {canDelete && (
+                          <ConfirmDialog
+                            title="¿Eliminar Sede?"
+                            description={`Estás por borrar "${sede.nombre}". Esta acción no se puede deshacer.`}
+                            onConfirm={() => handleDelete(sede.id)}
+                            confirmText="Sí, eliminar"
+                            trigger={
+                              <button
+                                className={css({
+                                  color: 'red.500',
+                                  cursor: 'pointer',
+                                  p: '2',
+                                  borderRadius: 'lg',
+                                  _hover: { bgColor: 'red.50' }
+                                })}
+                              >
+                                <Trash2 size={18} />
+                              </button>
+                            }
+                          />
+                        )}
+                      </div>
+                    </td>
+                  )}
                 </tr>
               ))
             )}

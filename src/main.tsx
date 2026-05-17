@@ -4,6 +4,8 @@ import { createRouter, RouterProvider } from '@tanstack/react-router';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { routeTree } from './routeTree.gen';
 import { useAuthStore } from '@/shared/store/auth.store';
+import { NotFoundPage } from '@/shared/components/errors/NotFoundPage';
+import { GenericErrorPage } from '@/shared/components/errors/GenericErrorPage';
 import './index.css';
 
 const queryClient = new QueryClient();
@@ -11,6 +13,8 @@ const queryClient = new QueryClient();
 const router = createRouter({
   routeTree,
   context: { auth: undefined! },
+  defaultNotFoundComponent: () => <NotFoundPage />,
+  defaultErrorComponent: ({ error }) => <GenericErrorPage error={error as Error} />,
 });
 
 declare module '@tanstack/react-router' {

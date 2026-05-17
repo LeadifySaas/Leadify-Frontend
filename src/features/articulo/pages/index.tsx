@@ -12,11 +12,13 @@ import {
   Settings2,
   X //
 } from 'lucide-react';
-import { useNavigate } from '@tanstack/react-router';
 import { useArticulos } from '../hooks/useArticulos';
 import { ConfirmDialog } from '../components/ConfirmDialog';
 import { ArticuloForm } from '../components/ArticuloForm';
-import type { Articulo } from '../schemas';
+import type { Articulo } from '../types';
+import { environment } from '@/environments/environment';
+import { usePermissions } from '@/shared/hooks/usePermissions';
+import { useNavigate } from '@tanstack/react-router';
 
 export default function ArticuloPage() {
   const navigate = useNavigate();
@@ -24,13 +26,21 @@ export default function ArticuloPage() {
   const [page, setPage] = useState(1);
   const size = 25;
 
+  const { canCreate, canEdit, canDelete } = usePermissions();
+
   const { articulosQuery, deleteArticulo } = useArticulos(page, size, search);
   const { data, isLoading } = articulosQuery;
 
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [selectedArticulo, setSelectedArticulo] = useState<any>(null);
+  const [selectedArticulo, setSelectedArticulo] = useState<Articulo | null>(
+    null
+  );
   const [formMode, setFormMode] = useState<'create' | 'edit'>('create');
-  const handleRowClick = (event: any, articulo?: Articulo) => {
+
+  const handleRowClick = (
+    event: React.MouseEvent<HTMLTableRowElement>,
+    articulo?: Articulo
+  ) => {
     const isMobileOrTablet = window.innerWidth <= 1024;
 
     if (isMobileOrTablet) {
@@ -131,22 +141,24 @@ export default function ArticuloPage() {
           </div>
         </div>
 
-        <button
-          onClick={() => handleAction('create')}
-          className={hstack({
-            px: '5',
-            py: '2.5',
-            bgColor: 'blue.600',
-            color: 'white',
-            borderRadius: 'xl',
-            fontWeight: 'bold',
-            cursor: 'pointer',
-            _hover: { bgColor: 'blue.700' },
-            transition: 'all 0.2s'
-          })}
-        >
-          <Plus size={18} /> Nuevo Artículo
-        </button>
+        {canCreate && (
+          <button
+            onClick={() => navigate({ to: '/materiales/articulos/nuevo' })}
+            className={hstack({
+              px: '5',
+              py: '2.5',
+              bgColor: 'blue.600',
+              color: 'white',
+              borderRadius: 'xl',
+              fontWeight: 'bold',
+              cursor: 'pointer',
+              _hover: { bgColor: 'blue.700' },
+              transition: 'all 0.2s'
+            })}
+          >
+            <Plus size={18} /> Nuevo Artículo
+          </button>
+        )}
       </div>
 
       {/* Controles: Barra de Búsqueda y Configuración de Columnas */}
@@ -299,6 +311,7 @@ export default function ArticuloPage() {
                 textAlign: 'left'
               })}
             >
+              {/* Aquí se agregaron las validaciones isColVisible y el th de Imagen */}
               {isColVisible('imagen') && (
                 <th className={css(thStyle)}>Imagen</th>
               )}
@@ -315,7 +328,7 @@ export default function ArticuloPage() {
               {isColVisible('estado') && (
                 <th className={css(thStyle)}>Estado</th>
               )}
-              {isColVisible('acciones') && (
+              {isColVisible('acciones') && (canEdit || canDelete) && (
                 <th className={css({ ...thStyle, textAlign: 'center' })}>
                   Acciones
                 </th>
@@ -330,9 +343,10 @@ export default function ArticuloPage() {
                 </td>
               </tr>
             ) : (
-              data?.items?.map((articulo: any) => (
+              data?.items?.map((articulo: Articulo) => (
                 <tr
                   key={articulo.id}
+                  onClick={(e) => handleRowClick(e, articulo)}
                   className={css({
                     borderBottom: '1px solid',
                     borderBottomColor: 'gray.200',
@@ -344,14 +358,13 @@ export default function ArticuloPage() {
                   })}
                 >
                   {isColVisible('imagen') && (
-                    <td
-                      className={tdStyle}
-                      onClick={() => handleRowClick(articulo)}
-                    >
+                    <td className={tdStyle}>
                       <img
                         src={
-                          articulo.imagenUrl ||
-                          'https://placehold.co/40x40?text=Img'
+                          articulo.imagenUrl
+                            ? environment.backend_files_baseUrl +
+                              articulo.imagenUrl
+                            : 'https://placehold.co/40x40?text=Img'
                         }
                         alt={articulo.nombre}
                         className={css({
@@ -368,10 +381,7 @@ export default function ArticuloPage() {
                   )}
 
                   {isColVisible('codigo') && (
-                    <td
-                      className={tdStyle}
-                      onClick={() => handleRowClick(articulo)}
-                    >
+                    <td className={tdStyle}>
                       <code
                         className={css({
                           fontSize: 'xs',
@@ -389,10 +399,7 @@ export default function ArticuloPage() {
                   )}
 
                   {isColVisible('nombre') && (
-                    <td
-                      className={tdStyle}
-                      onClick={() => handleRowClick(articulo)}
-                    >
+                    <td className={tdStyle}>
                       <div className={stack({ gap: '0' })}>
                         <span
                           className={css({
@@ -412,10 +419,7 @@ export default function ArticuloPage() {
                   )}
 
                   {isColVisible('precio') && (
-                    <td
-                      className={tdStyle}
-                      onClick={() => handleRowClick(articulo)}
-                    >
+                    <td className={tdStyle}>
                       <span
                         className={css({
                           fontWeight: '600',
@@ -428,10 +432,7 @@ export default function ArticuloPage() {
                   )}
 
                   {isColVisible('stock') && (
-                    <td
-                      className={tdStyle}
-                      onClick={() => handleRowClick(articulo)}
-                    >
+                    <td className={tdStyle}>
                       <span
                         className={css({
                           fontWeight: 'bold',
@@ -453,10 +454,7 @@ export default function ArticuloPage() {
                   )}
 
                   {isColVisible('estado') && (
-                    <td
-                      className={tdStyle}
-                      onClick={() => handleRowClick(articulo)}
-                    >
+                    <td className={tdStyle}>
                       <span
                         className={css({
                           padding: '4px 8px',
@@ -475,10 +473,10 @@ export default function ArticuloPage() {
                     </td>
                   )}
 
-                  {isColVisible('acciones') && (
+                  {/* Aquí se unificó la lógica de "acciones" y botones de edición/borrado */}
+                  {isColVisible('acciones') && (canEdit || canDelete) && (
                     <td
                       className={`${tdStyle} ${css({ textAlign: 'center' })}`}
-                      onClick={() => handleRowClick(articulo)}
                     >
                       <div
                         className={hstack({
@@ -486,30 +484,39 @@ export default function ArticuloPage() {
                           justifyContent: 'center'
                         })}
                       >
-                        <button
-                          className={actionBtnStyle}
-                          title="Editar"
-                          onClick={() => handleAction('edit', articulo)}
-                        >
-                          <Edit size={16} />
-                        </button>
-                        <ConfirmDialog
-                          title="¿Eliminar artículo?"
-                          description={`Estás por borrar "${articulo.nombre}". Esta acción no se puede deshacer.`}
-                          onConfirm={() => deleteArticulo(articulo.id)}
-                          confirmText="Sí, eliminar"
-                          trigger={
-                            <button
-                              className={css({
-                                color: 'red.500',
-                                cursor: 'pointer',
-                                p: '2'
-                              })}
-                            >
-                              <Trash2 size={18} />
-                            </button>
-                          }
-                        />
+                        {canEdit && (
+                          <button
+                            className={actionBtnStyle}
+                            title="Editar"
+                            onClick={() =>
+                              navigate({
+                                to: '/materiales/articulos/$id',
+                                params: { id: articulo.id.toString() }
+                              })
+                            }
+                          >
+                            <Edit size={16} />
+                          </button>
+                        )}
+                        {canDelete && (
+                          <ConfirmDialog
+                            title="¿Eliminar artículo?"
+                            description={`Estás por borrar "${articulo.nombre}". Esta acción no se puede deshacer.`}
+                            onConfirm={() => deleteArticulo(articulo.id)}
+                            confirmText="Sí, eliminar"
+                            trigger={
+                              <button
+                                className={css({
+                                  color: 'red.500',
+                                  cursor: 'pointer',
+                                  p: '2'
+                                })}
+                              >
+                                <Trash2 size={18} />
+                              </button>
+                            }
+                          />
+                        )}
                       </div>
                     </td>
                   )}

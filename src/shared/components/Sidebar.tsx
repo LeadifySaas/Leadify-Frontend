@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Link } from '@tanstack/react-router';
 import { css } from '../../../styled-system/css';
 import { stack, hstack, center } from '../../../styled-system/patterns';
+import { useAuthStore } from '@/shared/store/auth.store';
 import {
     LayoutDashboard,
     Settings,
@@ -13,9 +14,21 @@ import {
     Box
 } from 'lucide-react';
 
+const IconResolver = ({ name, size }: { name?: string; size: number }) => {
+    switch (name) {
+        case 'LayoutDashboard': return <LayoutDashboard size={size} />;
+        case 'Settings': return <Settings size={size} />;
+        case 'FileText': return <FileText size={size} />;
+        case 'ShieldCheck': return <ShieldCheck size={size} />;
+        case 'Box': return <Box size={size} />;
+        default: return <Box size={size} />;
+    }
+};
+
 export function Sidebar() {
     // Estado para colapsar todo el sidebar
     const [isCollapsed, setIsCollapsed] = useState(false);
+    const { menuItems } = useAuthStore();
 
     return (
         <aside className={css({
@@ -52,43 +65,34 @@ export function Sidebar() {
                 </div>
 
                 <nav className={stack({ gap: '2' })}>
-                    <NavItem to="/" icon={<LayoutDashboard size={18} />} label="Dashboard" isCollapsed={isCollapsed} />
+                    {menuItems.map((menu: any, idx: number) => {
+                        // Si el menú tiene submenús, renderizamos un NavGroup
+                        if (menu.subMenues && menu.subMenues.length > 0) {
+                            return (
+                                <NavGroup
+                                    key={idx}
+                                    icon={<IconResolver name={menu.icono} size={18} />}
+                                    label={menu.nombre}
+                                    isCollapsed={isCollapsed}
+                                    links={menu.subMenues.map((sm: any) => ({
+                                        to: sm.ruta || '#',
+                                        label: sm.nombre
+                                    }))}
+                                />
+                            );
+                        }
 
-                    <NavGroup
-                        icon={<FileText size={18} />}
-                        label="Documentación"
-                        isCollapsed={isCollapsed}
-                        links={[
-                            { to: '/documentacion/remitos', label: 'Remitos' }
-                        ]}
-                    />
-
-                    {/* Administración con Usuarios y Roles */}
-                    <NavGroup
-                        icon={<ShieldCheck size={18} />}
-                        label="Administración"
-                        isCollapsed={isCollapsed}
-                        links={[
-                            { to: '/administracion/usuarios', label: 'Usuarios' },
-                            { to: '/administracion/contactos', label: 'Contactos' },
-                            { to: '/administracion/clientes', label: 'Clientes' },
-                            { to: '/administracion/empresas', label: 'Empresas' },
-                            { to: '/administracion/roles', label: 'Roles y Permisos' },
-                            
-                            
-                        ]}
-                    />
-                    {/* Administración Materiales */}
-                    <NavGroup
-                        icon={<Box size={18} />}
-                        label="Materiales"
-                        isCollapsed={isCollapsed}
-                        links={[
-                            { to: '/materiales/articulos', label: 'Articulos' }
-                        ]}
-                    />
-
-                    <NavItem to="/configuracion" icon={<Settings size={18} />} label="Configuración" isCollapsed={isCollapsed} />
+                        // Si no tiene submenús, es un NavItem directo
+                        return (
+                            <NavItem
+                                key={idx}
+                                to={menu.ruta || '#'}
+                                icon={<IconResolver name={menu.icono} size={18} />}
+                                label={menu.nombre}
+                                isCollapsed={isCollapsed}
+                            />
+                        );
+                    })}
                 </nav>
             </div>
         </aside>
@@ -118,6 +122,7 @@ function NavItem({ to, icon, label, isCollapsed }: { to: string, icon: any, labe
 }
 
 function NavGroup({ icon, label, links, isCollapsed }: { icon: any, label: string, links: { to: string, label: string }[], isCollapsed: boolean }) {
+    console.log(`Links en ${label}:`, links);
     const [isOpen, setIsOpen] = useState(false);
 
     // Si el sidebar está colapsado, no mostramos el submenú abierto

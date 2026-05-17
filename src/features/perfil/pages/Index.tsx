@@ -15,7 +15,7 @@ import {
   Smartphone
 } from 'lucide-react';
 
-export default function ProfilePage() {
+export default function PerfilPage() {
   const [formData, setFormData] = useState({
     // Personal
     nombre: 'Test',

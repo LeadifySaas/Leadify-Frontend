@@ -1,9 +1,9 @@
 import { css } from '../../../../styled-system/css';
 import { stack, grid, hstack, center } from '../../../../styled-system/patterns';
-import { Save, ArrowLeft, User, ShieldCheck, Info, Phone, Briefcase, FileText } from 'lucide-react';
+import { Save, ArrowLeft, User, ShieldCheck, Info, Phone, Briefcase, FileText, CheckCircle } from 'lucide-react';
 import { useNavigate } from '@tanstack/react-router';
 import { useForm, type SubmitHandler } from "react-hook-form";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { UsuarioSchema, type UsuarioFormValues } from "../schemas";
 import { useUsuarios } from "../hooks/useUsuario";
@@ -13,37 +13,80 @@ interface Props {
     initialData?: any;
 }
 
+const ROUTE_USUARIOS = '/administracion/usuarios' as const;
+
 export function UsuarioForm({ mode, initialData }: Props) {
     const navigate = useNavigate();
     const { createUsuario, updateUsuario, isCreating, isUpdating } = useUsuarios();
+    const [successMessage, setSuccessMessage] = useState('');
 
     const { register, handleSubmit, reset, watch, formState: { errors } } = useForm<UsuarioFormValues>({
         resolver: zodResolver(UsuarioSchema),
-        defaultValues: initialData || {
-            rolId: 2,
-            activo: true,
-            areaSector: "", 
-            telefono: "",
-            observaciones: ""
-        },
+        defaultValues: initialData
+            ? {
+                nombre: initialData.nombre || '',
+                apellido: initialData.apellido || '',
+                email: initialData.email || '',
+                perfilId: Number(initialData.perfilId || 2),
+                activo: initialData.activo ?? true,
+                telefono: initialData.telefono || '',
+                areaSector: initialData.areaSector || '',
+                observaciones: initialData.observaciones || '',
+                password: '',
+            }
+            : {
+                nombre: '',
+                apellido: '',
+                email: '',
+                perfilId: 2,
+                activo: true,
+                areaSector: "",
+                telefono: "",
+                observaciones: "",
+                password: '',
+            },
     });
 
     useEffect(() => {
         if (initialData) {
-            reset(initialData);
+            reset({
+                nombre: initialData.nombre || '',
+                apellido: initialData.apellido || '',
+                email: initialData.email || '',
+                perfilId: Number(initialData.perfilId || 2),
+                activo: initialData.activo ?? true,
+                telefono: initialData.telefono || '',
+                areaSector: initialData.areaSector || '',
+                observaciones: initialData.observaciones || '',
+                password: '',
+            });
         }
     }, [initialData, reset]);
 
     const onSubmit: SubmitHandler<UsuarioFormValues> = async (data) => {
-
-
         try {
+            // En edición, si la contraseña está vacía no la enviamos
+            const payload =
+                mode === 'edit' && !data.password
+                    ? { ...data, password: undefined }
+                    : data;
+
             if (mode === 'create') {
-                await createUsuario(data);
+                console.log("Enviando payload para CREAR:", payload);
+                await createUsuario(payload);
+                setSuccessMessage('Usuario creado correctamente.');
             } else {
-                await updateUsuario({ id: initialData.id, ...data });
+                const updatePayload = { id: initialData.id, ...payload };
+                console.log("Enviando payload para ACTUALIZAR:", updatePayload);
+                await updateUsuario(updatePayload);
+                setSuccessMessage('Usuario actualizado correctamente.');
             }
-            navigate({ to: '/administracion/Usuarios' });
+
+
+            // Esperamos un momento para que el usuario vea el mensaje y redirigimos
+            setTimeout(() => {
+                navigate({ to: ROUTE_USUARIOS });
+            }, 1500);
         } catch (error) {
             console.error("Error al guardar usuario:", error);
         }
@@ -60,12 +103,24 @@ export function UsuarioForm({ mode, initialData }: Props) {
     return (
         <form onSubmit={handleSubmit(onSubmit)} className={stack({ gap: '6', p: '2' })}>
 
+            {/* Mensaje de éxito */}
+            {successMessage && (
+                <div className={hstack({
+                    gap: '3', p: '4',
+                    bgColor: 'green.50', border: '1px solid', borderColor: 'green.200',
+                    borderRadius: 'xl', color: 'green.700'
+                })}>
+                    <CheckCircle size={20} />
+                    <span className={css({ fontWeight: '600', fontSize: 'sm' })}>{successMessage}</span>
+                </div>
+            )}
+
             {/* Header */}
             <div className={hstack({ justifyContent: 'space-between' })}>
                 <div className={hstack({ gap: '4' })}>
                     <button
                         type="button"
-                        onClick={() => navigate({ to: '/administracion/Usuarios' })}
+                        onClick={() => navigate({ to: ROUTE_USUARIOS })}
                         className={center({ p: '2', borderRadius: 'xl', _hover: { bgColor: 'gray.100' }, cursor: 'pointer' })}
                     >
                         <ArrowLeft size={20} />
@@ -143,29 +198,33 @@ export function UsuarioForm({ mode, initialData }: Props) {
                         <div className={grid({ columns: 2, gap: '4' })}>
                             <div className={stack({ gap: '1.5' })}>
                                 <label className={labelStyle}>Email (Usuario)</label>
-                                <input 
-                                    type="email" 
-                                    {...register("email")} 
-                                    className={inputStyle} 
-                                    disabled={mode === 'edit'} // Email suele ser inmutable
-                                    placeholder="usuario@leadify.com" 
+                                <input
+                                    type="email"
+                                    {...register("email")}
+                                    className={inputStyle}
+                                    disabled={mode === 'edit'}
+                                    placeholder="usuario@leadify.com"
                                 />
                                 {errors.email && <span className={errorStyle}>{errors.email.message}</span>}
                             </div>
-                            
+
                             <div className={stack({ gap: '1.5' })}>
-                                <label className={labelStyle}>Contraseña {mode === 'edit' && "(opcional)"}</label>
+                                <label className={labelStyle}>
+                                    Contraseña {mode === 'edit' && <span className={css({ color: 'gray.400', fontWeight: 'normal', textTransform: 'none' })}>(dejar vacío para no cambiar)</span>}
+                                </label>
                                 <input type="password" {...register("password")} className={inputStyle} placeholder="••••••••" />
                                 {errors.password && <span className={errorStyle}>{errors.password.message}</span>}
                             </div>
 
+                            {/* Rol del Sistema — envía rolId (número) al backend */}
                             <div className={stack({ gap: '1.5' })}>
                                 <label className={labelStyle}>Rol del Sistema</label>
-                                <select className={inputStyle} {...register("rolId")}>
-                                    <option value="1">Administrador</option>
-                                    <option value="2">Vendedor</option>
-                                    <option value="3">Logística</option>
+                                <select className={inputStyle} {...register("perfilId", { valueAsNumber: true })}>
+                                    <option value={1}>Administrador</option>
+                                    <option value={2}>Vendedor</option>
+                                    <option value={3}>Logística</option>
                                 </select>
+                                {errors.perfilId && <span className={errorStyle}>{errors.perfilId.message}</span>}
                             </div>
 
                             <div className={stack({ gap: '1.5', justifyContent: 'center' })}>
@@ -228,10 +287,10 @@ export function UsuarioForm({ mode, initialData }: Props) {
                     </div>
 
                     <div className={cardStyle}>
-                         <label className={labelStyle}>
+                        <label className={labelStyle}>
                             <div className={hstack({ gap: '1' })}><FileText size={12} /> Observaciones Internas</div>
-                         </label>
-                         <textarea 
+                        </label>
+                        <textarea
                             {...register("observaciones")}
                             className={css({
                                 p: '2.5', bgColor: 'gray.50', border: '1px solid', borderColor: 'gray.200',
@@ -240,7 +299,7 @@ export function UsuarioForm({ mode, initialData }: Props) {
                                 _focus: { borderColor: 'blue.400', bgColor: 'white' }
                             })}
                             placeholder="Notas administrativas sobre el perfil..."
-                         />
+                        />
                     </div>
                 </div>
             </div>
@@ -248,13 +307,13 @@ export function UsuarioForm({ mode, initialData }: Props) {
     );
 }
 
-// Estilos se mantienen igual que en tu base
+// Estilos
 const cardStyle = css({ p: '6', bgColor: 'white', borderRadius: '2xl', border: '1px solid', borderColor: 'gray.100', boxShadow: 'sm' });
 const sectionTitleStyle = css({ fontWeight: '800', color: '#1A365D', fontSize: 'md' });
 const labelStyle = css({ fontSize: 'xs', fontWeight: 'bold', color: 'gray.500', textTransform: 'uppercase', letterSpacing: 'wider' });
 const errorStyle = css({ color: 'red.500', fontSize: '10px', fontWeight: 'bold' });
 const inputStyle = css({
     p: '2.5', bgColor: 'gray.50', border: '1px solid', borderColor: 'gray.200',
-    w: 'full', borderRadius: 'xl', fontSize: 'sm', outline: 'none', 
+    w: 'full', borderRadius: 'xl', fontSize: 'sm', outline: 'none',
     _focus: { borderColor: 'blue.400', bgColor: 'white' }
 });
